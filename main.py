@@ -31,9 +31,12 @@ for restaurant in restaurant_elements:
         name_element = restaurant.find_element(By.CSS_SELECTOR, 'div.qBF1Pd')
         name = name_element.text if name_element else "No name"
 
-        # Get restaurant rating
+        # Get restaurant rating and remove the "number of reviews"
         rating_element = restaurant.find_element(By.CSS_SELECTOR, 'span[aria-label*="stars"]')
-        rating = rating_element.get_attribute("aria-label") if rating_element else "No rating"
+        rating_text = rating_element.get_attribute("aria-label") if rating_element else "No rating"
+        
+        # Extract only the star rating number (e.g., "4.5 stars" -> "4.5")
+        rating = rating_text.split(" ")[0] if rating_text else "No rating"
 
         # Append to the restaurants list
         restaurants.append((name, rating))
@@ -52,5 +55,3 @@ with open(csv_restaurantdata, mode='w', newline='', encoding='utf-8') as file:
     writer.writerows(restaurants)  # Write restaurant data
 
 print(f"Data has been written to {csv_restaurantdata}")
-
-
