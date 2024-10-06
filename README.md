@@ -1,8 +1,28 @@
-# PPDS_final_project
-This is the project repository for the final project of Projects in Programming and Data Science
+## BistroMoods
 
-##Group Members
-1. Aysa Muma
-2. Arthur Abitbol
-3. Marian Camacho
-4. Sophia Campos
+BistroMoods is a web application that helps users find restaurants based on their moods. The data model captures essential information about users, moods, restaurants, and reviews. It connects users' emotional states with restaurant recommendations through a relational database, enabling the application to analyze reviews and suggest dining options that align with users' feelings.
+
+## Data Model
+
+The BistroMoods data model is designed to connect user moods with restaurant recommendations. It consists of four main entities:
+
+- Users: Stores user information including usernames and emails.
+- Moods: Represents different emotional states that influence restaurant choices.
+- Restaurants: Contains details about various restaurants, including their names and locations.
+- Reviews: Links users to their feedback on restaurants, capturing ratings and comments.
+
+These entities interact to enable users to find restaurants that match their moods based on the analysis of reviews.
+
+## Prerequisites
+- Python 3.11 or higher
+- MySQL
+- pip (Python package manager)
+
+## Why SQL?
+We chose SQL for BistroMoods due to its structured nature, which perfectly suited for managing the relationships between moods, users, restaurants, and reviews. Furthermore, since SQL databases allow for efficient querying and retrieval of data, which will be crucial for providing personalized restaurant recommendations based on user mood, SQL became an even more enticing choice. Additionally, the use of SQL will help to ensure data integrity and consistency through enforced relationships and constraints, making it an ideal choice for this project.
+
+## Setup
+
+## Usage 
+
+
