@@ -17,12 +17,14 @@ These entities interact to enable users to find restaurants that match their moo
 We chose SQL for BistroMoods due to its structured nature, which perfectly suited for managing the relationships between moods, users, restaurants, and reviews. Furthermore, since SQL databases allow for efficient querying and retrieval of data, which will be crucial for providing personalized restaurant recommendations based on user mood, SQL became an even more enticing choice. Additionally, the use of SQL will help to ensure data integrity and consistency through enforced relationships and constraints, making it an ideal choice for this project.
 
 ## Prerequisites
-- Python 3.11 or higher
 - MySQL
-- pip (Python package manager)
+
 
 ## Setup
 
 ## Usage 
+
+## Link to ER Diagram 
+https://lucid.app/lucidchart/65c785fc-db1b-4660-861f-f5b31761855a/edit?viewport_loc=-1978%2C-1597%2C2327%2C1383%2C0_0&invitationId=inv_7a023b2d-4867-4d8b-9e50-30a211190691
 
 
