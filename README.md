@@ -13,13 +13,13 @@ The BistroMoods data model is designed to connect user moods with restaurant rec
 
 These entities interact to enable users to find restaurants that match their moods based on the analysis of reviews.
 
+## Why SQL?
+We chose SQL for BistroMoods due to its structured nature, which perfectly suited for managing the relationships between moods, users, restaurants, and reviews. Furthermore, since SQL databases allow for efficient querying and retrieval of data, which will be crucial for providing personalized restaurant recommendations based on user mood, SQL became an even more enticing choice. Additionally, the use of SQL will help to ensure data integrity and consistency through enforced relationships and constraints, making it an ideal choice for this project.
+
 ## Prerequisites
 - Python 3.11 or higher
 - MySQL
 - pip (Python package manager)
-
-## Why SQL?
-We chose SQL for BistroMoods due to its structured nature, which perfectly suited for managing the relationships between moods, users, restaurants, and reviews. Furthermore, since SQL databases allow for efficient querying and retrieval of data, which will be crucial for providing personalized restaurant recommendations based on user mood, SQL became an even more enticing choice. Additionally, the use of SQL will help to ensure data integrity and consistency through enforced relationships and constraints, making it an ideal choice for this project.
 
 ## Setup
 
