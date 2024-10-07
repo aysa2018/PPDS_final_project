@@ -29,3 +29,32 @@ CREATE TABLE Reviews (
     FOREIGN KEY (RestaurantID) REFERENCES Restaurants(RestaurantID),
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
+
+CREATE TABLE Discounts (
+    DiscountID INT AUTO_INCREMENT PRIMARY KEY,
+    RestaurantID BIGINT UNSIGNED,    
+    DiscountDescription VARCHAR(255),
+    DiscountAmount DECIMAL(5, 2),     
+    ValidDays VARCHAR(100),          
+    StartDate DATE,                  
+    EndDate DATE,                    
+    FOREIGN KEY (RestaurantID) REFERENCES Restaurants(RestaurantID)
+);
+
+CREATE TABLE SearchQueries (
+    QueryID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID BIGINT UNSIGNED,           
+    MoodID INT,                      
+    SentimentKeywords VARCHAR(255),
+    FilterCriteria JSON,
+    SearchDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (MoodID) REFERENCES Moods(MoodID)
+);
+
+CREATE TABLE Moods (
+    MoodID INT AUTO_INCREMENT PRIMARY KEY,
+    MoodName VARCHAR(100) NOT NULL,
+    Description TEXT
+);
+ 
