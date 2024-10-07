@@ -18,9 +18,10 @@ We chose SQL for BistroMoods due to its structured nature, which perfectly suite
 
 ## Prerequisites
 - MySQL
-
-
+  
 ## Setup
+1. Use the git clone command to clone the repository to download the database to your local machine
+2. Open the MySQL Workbench and
 
 ## Usage 
 
