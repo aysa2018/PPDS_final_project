@@ -28,7 +28,7 @@ We chose SQL for BistroMoods due to its structured nature, which is well-suited 
 3. Load and execute the SQL script by going to File > Open SQL Script. Navigate to the cloned repository folder where the SQL script is located. Select the SQL script file: bistromoods.sql and open it.
 4. Once the script is loaded into the editor, click the Execute button (the lightning bolt icon) to run the script. This will create the tables in the selected database.
 5. After creating the tables ensure to also open and excecute the insertdata.sql to load the freshly created tables with representative data.
-6. Once the insertdata.sql scrip is excecuted the data table is ready for use.
+6. Once the insertdata.sql script is excecuted the data table is ready for use.
 
 ## Usage
 In the BistroMoods web application, users will interact with a user-friendly front end, while the back end will handle all interactions with the database. Here’s how the database will be utilized:
