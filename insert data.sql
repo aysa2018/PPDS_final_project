@@ -32,3 +32,34 @@ VALUES
 
 SELECT * FROM Reviews;
 
+
+INSERT INTO Moods (MoodID, MoodName, Description)
+VALUES
+(1, 'Joyful', 'A happy mood where you want to enjoy your night with a lively atmosphere'),
+(2, 'Sad', 'When you feel down and just want to eat quickly and in silence'),
+(3, 'Romantic', 'Beautiful setting and amazing food for a night out with your loved one'),
+(4, 'Chic', 'High-end restaurant to impress whoever you bring');
+
+SELECT * FROM Moods;
+
+
+INSERT INTO SearchQueries (UserID, MoodID, SentimentKeywords, FilterCriteria, SearchDate)
+VALUES
+(1, 1, 'Happy', '{}', '2024-10-06 16:40:00'),
+(2, 1, 'Music', '{}', '2024-10-04 10:05:00'),
+(3, 2, 'Chill', '{}', '2024-10-05 09:09:09'),
+(4, 3, 'Love', '{}', '2024-10-07 20:00:00'),
+(3, 4, 'Classy', '{}', '2024-10-07 10:00:00');
+
+SELECT * FROM SearchQueries;
+
+INSERT INTO Discounts (RestaurantID, DiscountDescription, DiscountAmount, ValidDays, StartDate, EndDate)
+VALUES
+(1, '10% off for first-time customers', 10.00, 'Mon,Tue,Wed', '2024-10-01', '2024-12-31'),
+(2, 'Buy 1 Get 1 Free', 50.00, 'Thu,Fri', '2024-11-01', '2024-11-30'),
+(3, '20% off all orders over $50', 20.00, 'Sat,Sun', '2024-12-01', '2024-12-31'),
+(4, 'Free dessert with any meal', 0.00, 'Mon,Thu', '2024-10-15', '2024-11-15'),
+(5, '15% off for students', 15.00, 'Fri,Sat', '2024-09-01', '2024-10-31');
+
+SELECT * FROM Discounts;
+
