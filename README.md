@@ -23,10 +23,12 @@ We chose SQL for BistroMoods due to its structured nature, which is well-suited 
 - MySQL Workbench 
   
 ## Setup
-1. Use the `git clone` command to clone the repository to download the database to your local machine.
+1. Use the `git clone` command to clone the repository to download the SQL script to your local machine.
 2. Open MySQL Workbench and create a new database on your local machine, then select it.
-3. Load and execute the SQL script by going to File > Open SQL Script. Navigate to the cloned repository folder where the SQL script is located. Select the SQL script file and open it.
+3. Load and execute the SQL script by going to File > Open SQL Script. Navigate to the cloned repository folder where the SQL script is located. Select the SQL script file: bistromoods.sql and open it.
 4. Once the script is loaded into the editor, click the Execute button (the lightning bolt icon) to run the script. This will create the tables in the selected database.
+5. After creating the tables ensure to also open and excecute the insertdata.sql to load the freshly created tables with representative data.
+6. Once the insertdata.sql scrip is excecuted the data table is ready for use.
 
 ## Usage
 In the BistroMoods web application, users will interact with a user-friendly front end, while the back end will handle all interactions with the database. Here’s how the database will be utilized:
