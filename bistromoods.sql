@@ -49,7 +49,7 @@ CREATE TABLE Discounts (
 CREATE TABLE SearchQueries (
     QueryID INT AUTO_INCREMENT PRIMARY KEY,    -- Unique identifier for each search query
     UserID BIGINT UNSIGNED,                    -- Reference to the user making the query
-    MoodID INT,                                -- Reference to the mood associated with the query
+    MoodName VARCHAR(255),                     -- Stores the mood related to the query
     SentimentKeywords VARCHAR(255),            -- Extracted keywords based on user's sentiment or mood
     FilterCriteria JSON,                       -- JSON object storing any additional filters applied (e.g., price range)
     SearchDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Automatically sets the search date to the current timestamp
@@ -57,9 +57,17 @@ CREATE TABLE SearchQueries (
     FOREIGN KEY (MoodID) REFERENCES Moods(MoodID)   -- Foreign key referencing the Moods table
 );
 
--- Table to store different moods that users may select while searching for restaurants
-CREATE TABLE Moods (
-    MoodID INT AUTO_INCREMENT PRIMARY KEY,     -- Unique identifier for each mood
-    MoodName VARCHAR(100) NOT NULL,            -- Name of the mood (e.g., happy, sad)
-    Description TEXT                           -- Description of the mood
+-- Table to store different moods related to restaurants
+CREATE TABLE UserMood (                        
+    UserID BIGINT UNSIGNED NOT NULL,           -- Reference to the user making the query
+    MoodName VARCHAR(255) NOT NULL,            -- Identified moods of the user
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)  -- Foreign key referencing the Users Table
+);
+
+
+-- Table to store different moods related to restaurants
+CREATE TABLE RestaurantMood (
+    RestaurantID BIGINT UNSIGNED NOT NULL,    -- Reference to the Restaurant 
+    MoodName VARCHAR(255) NOT NULL,           -- Identified moods of the Restaurants
+    FOREIGN KEY (RestaurantID) REFERENCES Restaurants(RestaurantID) -- Foreign key referencing the Restaurants Table
 );

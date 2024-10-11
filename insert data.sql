@@ -38,25 +38,40 @@ VALUES
 -- Selecting all reviews to verify insertions
 SELECT * FROM Reviews;
 
--- Inserting moods that can be associated with restaurant searches
-INSERT INTO Moods (MoodID, MoodName, Description)
-VALUES
-(1, 'Joyful', 'A happy mood where you want to enjoy your night with a lively atmosphere'), -- Joyful mood for lively experiences
-(2, 'Sad', 'When you feel down and just want to eat quickly and in silence'), -- Sad mood for quiet dining
-(3, 'Romantic', 'Beautiful setting and amazing food for a night out with your loved one'), -- Romantic mood for date nights
-(4, 'Chic', 'High-end restaurant to impress whoever you bring'); -- Chic mood for impressing others
 
--- Selecting all moods to verify insertions
-SELECT * FROM Moods;
+-- Inserting sample moods for users
+INSERT INTO UserMood (UserID, MoodName)
+VALUES 
+(1, 'Happy'),      -- Alice is feeling happy
+(2, 'Excited'),    -- Bob is feeling excited
+(3, 'Relaxed'),    -- Carol is feeling relaxed
+(4, 'Hungry'),     -- Dave is feeling hungry
+(5, 'Adventurous'); -- Eve is feeling adventurous
 
--- Inserting user search queries with mood and keywords
-INSERT INTO SearchQueries (UserID, MoodID, SentimentKeywords, FilterCriteria, SearchDate)
+SELECT * FROM UserMood;
+
+
+-- Inserting sample moods for restaurants
+INSERT INTO RestaurantMood (RestaurantID, MoodName)
+VALUES 
+(1, 'Casual'),         -- LOS TACOS No.1 has a casual mood
+(2, 'Trendy'),         -- Great Jones Distilling Co has a trendy mood
+(3, 'Intimate'),       -- Piccola Cucina Osteria Siciliana has an intimate mood
+(4, 'Lively'),         -- Essex has a lively mood
+(5, 'Casual'),         -- Fish Cheeks has a casual mood
+(6, 'Casual'),         -- Bar Primi Bowery has a casual mood
+(7, 'Casual');         -- Gemma has a casual mood
+
+SELECT * FROM RestaurantMood;
+
+-- Inserting data into the updated SearchQueries table
+INSERT INTO SearchQueries (UserID, MoodName, SentimentKeywords, FilterCriteria, SearchDate)
 VALUES
-(1, 1, 'Happy', '{}', '2024-10-06 16:40:00'), -- Alice searched for a happy mood experience
-(2, 1, 'Music', '{}', '2024-10-04 10:05:00'), -- Bob searched with a "music" keyword
-(3, 2, 'Chill', '{}', '2024-10-05 09:09:09'), -- Carol was in a chill mood
-(4, 3, 'Love', '{}', '2024-10-07 20:00:00'), -- Dave searched with a romantic mood
-(3, 4, 'Classy', '{}', '2024-10-07 10:00:00'); -- Carol was looking for a classy, chic dining experience
+(1, 'Happy', 'Happy', '{}', '2024-10-06 16:40:00'),     -- Alice searched for a happy mood experience
+(2, 'Excited', 'Music', '{}', '2024-10-04 10:05:00'),   -- Bob searched with a "music" keyword while being excited
+(3, 'Relaxed', 'Chill', '{}', '2024-10-05 09:09:09'),   -- Carol was in a relaxed mood, searching for something chill
+(4, 'Hungry', 'Love', '{}', '2024-10-07 20:00:00'),     -- Dave searched with a romantic "love" mood while feeling hungry
+(3, 'Adventurous', 'Classy', '{}', '2024-10-07 10:00:00'); -- Carol was looking for a classy dining experience while feeling adventurous
 
 -- Selecting all search queries to verify insertions
 SELECT * FROM SearchQueries;
