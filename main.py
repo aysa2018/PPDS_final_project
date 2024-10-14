@@ -73,7 +73,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     new_user = UserModel(
         Username=user.Username,
         Email=user.Email,
-        PasswordHash=user.Password,  # You should hash the password here in production!
+        PasswordHash=user.Password,  
         Preferences=user.Preferences
     )
     db.add(new_user)
