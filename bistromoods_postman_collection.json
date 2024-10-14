@@ -1,0 +1,38 @@
+{
+    "info": {
+      "name": "BistroMoods API",
+      "description": "Postman collection for testing BistroMoods API.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Get All Users",
+        "request": {
+          "method": "GET",
+          "url": "{{base_url}}/users/"
+        }
+      },
+      {
+        "name": "Create User",
+        "request": {
+          "method": "POST",
+          "url": "{{base_url}}/users/",
+          "body": {
+            "mode": "raw",
+            "raw": "{\"Username\":\"alice\",\"Email\":\"alice@example.com\",\"Password\":\"password123\",\"Preferences\":{\"Cuisine\":\"Italian\"}}"
+          },
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ]
+        }
+      },
+      {
+        "name": "Get All Restaurants",
+        "request": {
+          "method": "GET",
+          "url": "{{base_url}}/restaurants/"
+        }
+      }
+    ]
+  }
+  

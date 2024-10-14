@@ -1,57 +1,148 @@
-import time
-import csv  # Import CSV module
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
+from fastapi import FastAPI, HTTPException, Depends
+from sqlalchemy import Column, Integer, String, Float, JSON, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
+from pydantic import BaseModel, EmailStr, Field
+from typing import List, Optional
+from dotenv import load_dotenv
+import os
 
-# Set up Chrome options
-chrome_options = Options()
-# chrome_options.add_argument("--headless")  # Uncomment to run in headless mode
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
+# Load environment variables
+load_dotenv()
 
-# Initialize the WebDriver
-driver = webdriver.Chrome(service=Service(), options=chrome_options)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")  # Use SQLite for quick testing
 
-# Open the Google Maps page for restaurants in NYC
-url = "https://www.google.com/maps/search/restaurants+near+NYC,+NY/@40.7262374,-73.9974596,15z?entry=ttu&g_ep=EgoyMDI0MTAwMi4xIKXMDSoASAFQAw%3D%3D"
-driver.get(url)
+# SQLAlchemy setup
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
-# Wait for the page to load
-time.sleep(5)
+# Database models
+class User(Base):
+    __tablename__ = "users"
+    UserID = Column(Integer, primary_key=True, index=True)
+    Username = Column(String(50), unique=True, nullable=False)
+    Email = Column(String(100), unique=True, nullable=False)
+    PasswordHash = Column(String(255), nullable=False)
+    Preferences = Column(JSON)
 
-# Scrape restaurant names and ratings
-restaurants = []
-restaurant_elements = driver.find_elements(By.CSS_SELECTOR, 'div.bfdHYd.Ppzolf.OFBs3e')
+class Restaurant(Base):
+    __tablename__ = "restaurants"
+    RestaurantID = Column(Integer, primary_key=True, index=True)
+    Name = Column(String(100), nullable=False)
+    Address = Column(String(255), nullable=False)
+    Latitude = Column(Float, nullable=False)
+    Longitude = Column(Float, nullable=False)
+    CuisineType = Column(String(100))
+    PriceRange = Column(String(50))
+    Ambiance = Column(String(100))
+    Rating = Column(Float, nullable=True)
 
-for restaurant in restaurant_elements:
+# Create tables
+Base.metadata.create_all(bind=engine)
+
+# Pydantic schemas
+class UserBase(BaseModel):
+    Username: str
+    Email: EmailStr
+    Preferences: Optional[dict] = None
+
+class UserCreate(UserBase):
+    Password: str
+
+class User(UserBase):
+    UserID: int
+
+    class Config:
+        orm_mode = True
+
+class RestaurantBase(BaseModel):
+    Name: str
+    Address: str
+    Latitude: float
+    Longitude: float
+    CuisineType: Optional[str] = None
+    PriceRange: Optional[str] = None
+    Ambiance: Optional[str] = None
+    Rating: Optional[float] = Field(None, ge=0, le=5)
+
+class RestaurantCreate(RestaurantBase):
+    pass
+
+class Restaurant(RestaurantBase):
+    RestaurantID: int
+
+    class Config:
+        orm_mode = True
+
+# FastAPI app
+app = FastAPI()
+
+# Dependency for DB session
+def get_db():
+    db = SessionLocal()
     try:
-        # Get restaurant name from <div class="qBF1Pd">
-        name_element = restaurant.find_element(By.CSS_SELECTOR, 'div.qBF1Pd')
-        name = name_element.text if name_element else "No name"
+        yield db
+    finally:
+        db.close()
 
-        # Get restaurant rating and remove the "number of reviews"
-        rating_element = restaurant.find_element(By.CSS_SELECTOR, 'span[aria-label*="stars"]')
-        rating_text = rating_element.get_attribute("aria-label") if rating_element else "No rating"
-        
-        # Extract only the star rating number (e.g., "4.5 stars" -> "4.5")
-        rating = rating_text.split(" ")[0] if rating_text else "No rating"
+# User routes
+@app.get("/users/", response_model=List[User])
+def read_users(db: Session = Depends(get_db)):
+    return db.query(User).all()
 
-        # Append to the restaurants list
-        restaurants.append((name, rating))
-        
-    except Exception as e:
-        print(f"Error extracting data: {e}")
+@app.get("/users/{user_id}", response_model=User)
+def read_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.UserID == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
-# Close the WebDriver
-driver.quit()
+@app.post("/users/", response_model=User)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = User(
+        Username=user.Username, 
+        Email=user.Email, 
+        PasswordHash=user.Password, 
+        Preferences=user.Preferences
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
-# Write the data to a CSV file
-csv_restaurantdata = 'restaurants_nyc.csv'
-with open(csv_restaurantdata, mode='w', newline='', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    writer.writerow(['Restaurant Name', 'Rating'])  # Write header
-    writer.writerows(restaurants)  # Write restaurant data
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.UserID == user_id).first()
+    if user:
+        db.delete(user)
+        db.commit()
+    return {"message": "User deleted successfully"}
 
-print(f"Data has been written to {csv_restaurantdata}")
+# Restaurant routes
+@app.get("/restaurants/", response_model=List[Restaurant])
+def read_restaurants(db: Session = Depends(get_db)):
+    return db.query(Restaurant).all()
+
+@app.get("/restaurants/{restaurant_id}", response_model=Restaurant)
+def read_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
+    restaurant = db.query(Restaurant).filter(Restaurant.RestaurantID == restaurant_id).first()
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    return restaurant
+
+@app.post("/restaurants/", response_model=Restaurant)
+def create_restaurant(restaurant: RestaurantCreate, db: Session = Depends(get_db)):
+    db_restaurant = Restaurant(**restaurant.dict())
+    db.add(db_restaurant)
+    db.commit()
+    db.refresh(db_restaurant)
+    return db_restaurant
+
+@app.delete("/restaurants/{restaurant_id}")
+def delete_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
+    restaurant = db.query(Restaurant).filter(Restaurant.RestaurantID == restaurant_id).first()
+    if restaurant:
+        db.delete(restaurant)
+        db.commit()
+    return {"message": "Restaurant deleted successfully"}
