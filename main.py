@@ -52,9 +52,8 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     UserID: int
-
     class Config:
-        orm_mode = True
+        from_attributes = True  # Replaces 'orm_mode'
 
 class RestaurantBase(BaseModel):
     Name: str
@@ -73,7 +72,7 @@ class Restaurant(RestaurantBase):
     RestaurantID: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True  # Replaces 'orm_mode'
 
 # FastAPI app
 app = FastAPI()
