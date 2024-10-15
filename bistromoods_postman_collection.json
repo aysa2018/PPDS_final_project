@@ -306,3 +306,140 @@
     ]
   }
   
+	{
+    "name": "Retrieve all UserMoods",
+    "request": {
+      "method": "GET",
+      "header": [],
+      "url": {
+        "raw": "http://127.0.0.1:8000/usermoods/",
+        "protocol": "http",
+        "host": [
+          "127",
+          "0",
+          "0",
+          "1"
+        ],
+        "port": "8000",
+        "path": [
+          "usermoods",
+          ""
+        ]
+      }
+    },
+    "response": []
+  },
+  {
+    "name": "Create Usermood",
+    "request": {
+      "method": "POST",
+      "header": [],
+      "body": {
+        "mode": "raw",
+        "raw": "{\n  \"UserID\": 1,\n  \"MoodName\": \"Happy\"\n}\n",
+        "options": {
+          "raw": {
+            "language": "json"
+          }
+        }
+      },
+      "url": {
+        "raw": "http://127.0.0.1:8000/usermoods/",
+        "protocol": "http",
+        "host": [
+          "127",
+          "0",
+          "0",
+          "1"
+        ],
+        "port": "8000",
+        "path": [
+          "usermoods",
+          ""
+        ]
+      }
+    },
+    "response": []
+  },
+  {
+    "name": "Retrieve UserMood by UserID",
+    "request": {
+      "method": "GET",
+      "header": [],
+      "url": {
+        "raw": "http://127.0.0.1:8000/usermoods/2",
+        "protocol": "http",
+        "host": [
+          "127",
+          "0",
+          "0",
+          "1"
+        ],
+        "port": "8000",
+        "path": [
+          "usermoods",
+          "2"
+        ]
+      }
+    },
+    "response": []
+  },
+  {
+    "name": "Retrieve all RestaurantMoods",
+    "request": {
+      "method": "GET",
+      "header": [],
+      "url": {
+        "raw": "http://127.0.0.1:8000/restaurantmoods/",
+        "protocol": "http",
+        "host": [
+          "127",
+          "0",
+          "0",
+          "1"
+        ],
+        "port": "8000",
+        "path": [
+          "restaurantmoods",
+          ""
+        ]
+      }
+    },
+    "response": []
+  },
+  {
+    "name": "Retreive RestaurantMood by RestaurantID",
+    "protocolProfileBehavior": {
+      "disableBodyPruning": true
+    },
+    "request": {
+      "method": "GET",
+      "header": [],
+      "body": {
+        "mode": "raw",
+        "raw": "",
+        "options": {
+          "raw": {
+            "language": "json"
+          }
+        }
+      },
+      "url": {
+        "raw": "http://127.0.0.1:8000/restaurantmoods/2",
+        "protocol": "http",
+        "host": [
+          "127",
+          "0",
+          "0",
+          "1"
+        ],
+        "port": "8000",
+        "path": [
+          "restaurantmoods",
+          "2"
+        ]
+      }
+    },
+    "response": []
+  },
+  
