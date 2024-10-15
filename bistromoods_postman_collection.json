@@ -229,7 +229,80 @@
           "header": []
         },
         "response": []
+      },
+      {
+        "name": "Create Review",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{ \"RestaurantID\": 1, \"UserID\": 1, \"Rating\": 4.5, \"Comment\": \"Amazing food!\" }"
+          },
+          "url": {
+            "raw": "http://127.0.0.1:8000/reviews/",
+            "host": ["127.0.0.1"],
+            "port": "8000",
+            "path": ["reviews"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Get Reviews For Restaurant",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "http://127.0.0.1:8000/restaurants/1/reviews/",
+            "host": ["127.0.0.1"],
+            "port": "8000",
+            "path": ["restaurants", "1", "reviews"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Update Review",
+        "request": {
+          "method": "PUT",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{ \"RestaurantID\": 1, \"UserID\": 1, \"Rating\": 5.0, \"Comment\": \"Best experience ever!\" }"
+          },
+          "url": {
+            "raw": "http://127.0.0.1:8000/reviews/1",
+            "host": ["127.0.0.1"],
+            "port": "8000",
+            "path": ["reviews", "1"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Delete Review",
+        "request": {
+          "method": "DELETE",
+          "url": {
+            "raw": "http://127.0.0.1:8000/reviews/1",
+            "host": ["127.0.0.1"],
+            "port": "8000",
+            "path": ["reviews", "1"]
+          }
+        },
+        "response": []
       }
+      
     ]
   }
   

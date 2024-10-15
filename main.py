@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
-from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.orm import declarative_base
@@ -415,3 +415,83 @@ def get_restaurant_moods_by_restaurant_id(restaurant_id: int, db: Session = Depe
     if not restaurant_moods:
         raise HTTPException(status_code=404, detail="Restaurant moods not found")
     return restaurant_moods
+
+
+# SQLAlchemy model for Reviews
+class ReviewModel(Base):
+    __tablename__ = "reviews"
+    
+    ReviewID = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    RestaurantID = Column(BigInteger, ForeignKey("restaurants.RestaurantID"), nullable=False)  # FK to Restaurant
+    UserID = Column(BigInteger, ForeignKey("users.UserID"), nullable=False)  # FK to User
+    Rating = Column(DECIMAL(2,1), nullable=False)
+    Comment = Column(String(1000), nullable=False)  # Comment field corresponds to the review text
+    ReviewDate = Column(TIMESTAMP, default=func.now())
+
+# Pydantic schema for creating a review
+class ReviewCreate(BaseModel):
+    RestaurantID: int
+    UserID: int
+    Rating: float
+    Comment: str  # Change to match the "Comment" column
+
+# Pydantic schema for review response
+class Review(BaseModel):
+    ReviewID: int
+    RestaurantID: int
+    UserID: int
+    Rating: float
+    Comment: str
+    ReviewDate: datetime
+
+    class Config:
+        from_attributes = True  # Allows SQLAlchemy objects to be returned as Pydantic models
+
+
+# POST endpoint to create a new review
+@app.post("/reviews/", response_model=Review)
+def create_review(review: ReviewCreate, db: Session = Depends(get_db)):
+    new_review = ReviewModel(
+        RestaurantID=review.RestaurantID,
+        UserID=review.UserID,
+        Rating=review.Rating,
+        Comment=review.Comment  # Corresponds to the Comment column
+    )
+    db.add(new_review)
+    db.commit()
+    db.refresh(new_review)
+    return new_review
+
+
+# GET endpoint to retrieve all reviews for a specific restaurant
+@app.get("/restaurants/{restaurant_id}/reviews/", response_model=List[Review])
+def get_reviews_for_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
+    reviews = db.query(ReviewModel).filter(ReviewModel.RestaurantID == restaurant_id).all()
+    if not reviews:
+        raise HTTPException(status_code=404, detail="No reviews found for this restaurant")
+    return reviews
+
+
+# PUT endpoint to update a review by ID
+@app.put("/reviews/{review_id}", response_model=Review)
+def update_review(review_id: int, updated_review: ReviewCreate, db: Session = Depends(get_db)):
+    review = db.query(ReviewModel).filter(ReviewModel.ReviewID == review_id).first()
+    if review is None:
+        raise HTTPException(status_code=404, detail="Review not found")
+
+    review.Rating = updated_review.Rating
+    review.Comment = updated_review.Comment  # Updated to match the Comment field
+    db.commit()
+    db.refresh(review)
+    return review
+
+
+# DELETE endpoint to delete a review by ID
+@app.delete("/reviews/{review_id}")
+def delete_review(review_id: int, db: Session = Depends(get_db)):
+    review = db.query(ReviewModel).filter(ReviewModel.ReviewID == review_id).first()
+    if review is None:
+        raise HTTPException(status_code=404, detail="Review not found")
+    db.delete(review)
+    db.commit()
+    return {"message": "Review deleted successfully"}
