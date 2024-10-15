@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
-from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.orm import declarative_base
@@ -158,6 +158,7 @@ class UserMood(Base):
 
 
 class UserMoodCreate(BaseModel):
+    UserID: int
     MoodName: str
 
 # Pydantic schema for user mood response
@@ -178,6 +179,7 @@ class RestaurantMood(Base):
     MoodName = Column(String(255), nullable=False)
 
 class RestaurantMoodCreate(BaseModel):
+    RestaurantID: int
     MoodName: str
 
 # Pydantic schema for restaurant mood response
@@ -373,13 +375,15 @@ def delete_discount(discount_id: int, db: Session = Depends(get_db)):
 
 
 # POST endpoint to create a new user mood
-@app.post("/usermoods/", response_model=UserMoodResponse)
-def create_user_mood(user_mood: UserMoodCreate, db: Session = Depends(get_db)):
+@app.post("/usermoods/")
+async def create_user_mood(user_mood: UserMoodCreate, db: Session = Depends(get_db)):
+    # Create a new UserMood object with the values from the request
     new_user_mood = UserMood(**user_mood.dict())
     db.add(new_user_mood)
     db.commit()
     db.refresh(new_user_mood)
     return new_user_mood
+
 
 # GET endpoint to retrieve all user moods
 @app.get("/usermoods/", response_model=list[UserMoodResponse])
