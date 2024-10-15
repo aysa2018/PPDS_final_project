@@ -48,6 +48,38 @@ class User(BaseModel):
 
     class Config:
         from_attributes = True  # Allows SQLAlchemy objects to be returned as Pydantic models
+# SQLAlchemy model for Restaurant
+class RestaurantModel(Base):
+    __tablename__ = "restaurants"
+    RestaurantID = Column(Integer, primary_key=True, index=True)
+    Name = Column(String(100), nullable=False)
+    Address = Column(String(255), nullable=False)
+    CuisineType = Column(String(50), nullable=True)
+    PriceRange = Column(String(10), nullable=True)  # Example: $, $$, $$$
+    Rating = Column(Float, nullable=True)
+    Ambiance = Column(String(100), nullable=True)
+
+# Pydantic schema for creating a restaurant
+class RestaurantCreate(BaseModel):
+    Name: str
+    Address: str
+    CuisineType: Optional[str] = None
+    PriceRange: Optional[str] = None
+    Rating: Optional[float] = None
+    Ambiance: Optional[str] = None
+
+# Pydantic schema for restaurant response
+class Restaurant(BaseModel):
+    RestaurantID: int
+    Name: str
+    Address: str
+    CuisineType: Optional[str] = None
+    PriceRange: Optional[str] = None
+    Rating: Optional[float] = None
+    Ambiance: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 # SQLAlchemy model for SearchQueries
 class SearchQueries(Base):
@@ -160,6 +192,33 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     return {"message": "User deleted successfully"}
 
 # CRUD operations for SearchQueries
+@app.post("/restaurants/", response_model=Restaurant)
+def create_restaurant(restaurant: RestaurantCreate, db: Session = Depends(get_db)):
+    new_restaurant = RestaurantModel(
+        Name=restaurant.Name,
+        Address=restaurant.Address,
+        CuisineType=restaurant.CuisineType,
+        PriceRange=restaurant.PriceRange,
+        Rating=restaurant.Rating,
+        Ambiance=restaurant.Ambiance
+    )
+    db.add(new_restaurant)
+    db.commit()
+    db.refresh(new_restaurant)
+    return new_restaurant
+
+@app.get("/restaurants/", response_model=List[Restaurant])
+def get_restaurants(db: Session = Depends(get_db)):
+    return db.query(RestaurantModel).all()
+
+@app.delete("/restaurants/{restaurant_id}")
+def delete_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
+    restaurant = db.query(RestaurantModel).filter(RestaurantModel.RestaurantID == restaurant_id).first()
+    if restaurant is None:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    db.delete(restaurant)
+    db.commit()
+    return {"message": "Restaurant deleted successfully"}
 
 # POST endpoint to create a new search query
 @app.post("/searchqueries/", response_model=SearchQuery)
