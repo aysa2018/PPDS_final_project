@@ -51,4 +51,19 @@ By implementing this architecture, the database will facilitate seamless interac
 ## Link to ER Diagram 
 https://lucid.app/lucidchart/65c785fc-db1b-4660-861f-f5b31761855a/edit?viewport_loc=-1978%2C-1597%2C2327%2C1383%2C0_0&invitationId=inv_7a023b2d-4867-4d8b-9e50-30a211190691
 
+## API Endpoints
+BistroMoods provides several RESTful API endpoints to interact with the database:
 
+**Users:** Create, retrieve, and delete user profiles.
+**Restaurants:** Add new restaurants, view all listings, and remove entries.
+**Reviews:** Submit, view, update, or delete reviews for restaurants.
+**Discounts:** Manage restaurant discounts by adding, viewing, or deleting them.
+**Search Queries:** Track user searches, retrieve them, and delete records as needed.
+These endpoints allow users and admins to manage all data within the BistroMoods system, ensuring a personalized restaurant recommendation experience based on moods and preferences.
+
+The BistroMoods backend utilizes several key libraries:
+**FastAPI:** Provides the framework to build and manage all API endpoints.
+**SQLAlchemy:** Handles interactions with the MySQL database, including table creation and queries.
+**Pydantic:** Ensures validation and proper formatting of API requests and responses.
+**Uvicorn:** Runs the FastAPI application, providing a fast and reliable server.
+These libraries ensure the backend efficiently manages data, while enabling users to access and interact with restaurant recommendations seamlessly.
