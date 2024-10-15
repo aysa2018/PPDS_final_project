@@ -1,38 +1,134 @@
 {
-    "info": {
+  "info": {
       "name": "BistroMoods API",
-      "description": "Postman collection for testing BistroMoods API.",
+      "_postman_id": "bistromoods-collection",
+      "description": "Postman collection for testing BistroMoods FastAPI endpoints",
       "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [
+  },
+  "item": [
       {
-        "name": "Get All Users",
-        "request": {
-          "method": "GET",
-          "url": "{{base_url}}/users/"
-        }
-      },
-      {
-        "name": "Create User",
-        "request": {
-          "method": "POST",
-          "url": "{{base_url}}/users/",
-          "body": {
-            "mode": "raw",
-            "raw": "{\"Username\":\"alice\",\"Email\":\"alice@example.com\",\"Password\":\"password123\",\"Preferences\":{\"Cuisine\":\"Italian\"}}"
+          "name": "Create User",
+          "request": {
+              "method": "POST",
+              "header": [
+                  {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                  }
+              ],
+              "body": {
+                  "mode": "raw",
+                  "raw": "\n                    {\n                      \"Username\": \"alice\",\n                      \"Email\": \"alice@example.com\",\n                      \"Password\": \"password123\",\n                      \"Preferences\": {\n                        \"Cuisine\": \"Italian\"\n                      }\n                    }\n                    "
+              },
+              "url": {
+                  "raw": "http://127.0.0.1:8000/users/",
+                  "host": [
+                      "127.0.0.1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                      "users"
+                  ]
+              }
           },
-          "header": [
-            { "key": "Content-Type", "value": "application/json" }
-          ]
-        }
+          "response": []
       },
       {
-        "name": "Get All Restaurants",
-        "request": {
-          "method": "GET",
-          "url": "{{base_url}}/restaurants/"
-        }
+          "name": "Get Users",
+          "request": {
+              "method": "GET",
+              "url": {
+                  "raw": "http://127.0.0.1:8000/users/",
+                  "host": [
+                      "127.0.0.1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                      "users"
+                  ]
+              }
+          },
+          "response": []
+      },
+      {
+          "name": "Delete User",
+          "request": {
+              "method": "DELETE",
+              "url": {
+                  "raw": "http://127.0.0.1:8000/users/1",
+                  "host": [
+                      "127.0.0.1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                      "users",
+                      "1"
+                  ]
+              }
+          },
+          "response": []
+      },
+      {
+          "name": "Create Restaurant",
+          "request": {
+              "method": "POST",
+              "header": [
+                  {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                  }
+              ],
+              "body": {
+                  "mode": "raw",
+                  "raw": "\n                    {\n                      \"Name\": \"Pasta Palace\",\n                      \"Address\": \"123 Italian Street, Foodville\",\n                      \"CuisineType\": \"Italian\",\n                      \"PriceRange\": \"$$$\",\n                      \"Rating\": 4.5,\n                      \"Ambiance\": \"Cozy\"\n                    }\n                    "
+              },
+              "url": {
+                  "raw": "http://127.0.0.1:8000/restaurants/",
+                  "host": [
+                      "127.0.0.1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                      "restaurants"
+                  ]
+              }
+          },
+          "response": []
+      },
+      {
+          "name": "Get Restaurants",
+          "request": {
+              "method": "GET",
+              "url": {
+                  "raw": "http://127.0.0.1:8000/restaurants/",
+                  "host": [
+                      "127.0.0.1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                      "restaurants"
+                  ]
+              }
+          },
+          "response": []
+      },
+      {
+          "name": "Delete Restaurant",
+          "request": {
+              "method": "DELETE",
+              "url": {
+                  "raw": "http://127.0.0.1:8000/restaurants/1",
+                  "host": [
+                      "127.0.0.1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                      "restaurants",
+                      "1"
+                  ]
+              }
+          },
+          "response": []
       }
-    ]
-  }
-  
+  ]
+}
