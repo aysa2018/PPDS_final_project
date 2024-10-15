@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException, Depends
-from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, Dict, List 
@@ -10,10 +12,15 @@ from dotenv import load_dotenv
 import os
 
 # Load environment variables from .env
-load_dotenv()
+
 
 # Database configuration from .env file
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = ("mysql+pymysql://bistromoods:F.iZMuY%27%5E%5EgYhdFG@34.44.42.132:3306/bistromoods")
+
+print(f"DATABASE_URL: {DATABASE_URL}")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL is not set in the environment or .env file")
+
 
 # Set up SQLAlchemy engine and session
 engine = create_engine(DATABASE_URL)
@@ -21,6 +28,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Base class for SQLAlchemy models
 Base = declarative_base()
+
 
 # SQLAlchemy model for User
 class UserModel(Base):
@@ -75,7 +83,7 @@ class SearchQuery(BaseModel):
     MoodName: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
         json_encoders = {
             datetime: lambda v: v.isoformat(),  # Convert datetime to ISO 8601 string
         }
@@ -108,6 +116,46 @@ class Discount(BaseModel):
     ValidDays: str
     StartDate: date  
     EndDate: date    
+
+class UserMood(Base):
+    __tablename__ = "UserMood"
+    
+    id = Column(Integer, primary_key=True, index=True)  # Add primary key
+    UserID = Column(Integer, ForeignKey("users.UserID"), nullable=False)
+    MoodName = Column(String(255), nullable=False)
+
+
+class UserMoodCreate(BaseModel):
+    MoodName: str
+
+# Pydantic schema for user mood response
+class UserMoodResponse(BaseModel):
+    UserID: int
+    MoodName: str
+
+    class Config:
+        from_attributes = True  # Allows SQLAlchemy objects to be returned as Pydantic models
+
+
+# SQLAlchemy model for RestaurantMood
+class RestaurantMood(Base):
+    __tablename__ = "RestaurantMood"
+    
+    id = Column(Integer, primary_key=True, index=True)  # Add primary key
+    RestaurantID = Column(Integer, ForeignKey("Restaurants.RestaurantID"), nullable=False)
+    MoodName = Column(String(255), nullable=False)
+
+class RestaurantMoodCreate(BaseModel):
+    MoodName: str
+
+# Pydantic schema for restaurant mood response
+class RestaurantMoodResponse(BaseModel):
+    RestaurantID: int
+    MoodName: str
+
+    class Config:
+        from_attributes = True  # Allows SQLAlchemy objects to be returned as Pydantic models
+
 
 # Create all tables in the database
 Base.metadata.create_all(bind=engine)
@@ -263,3 +311,48 @@ def delete_discount(discount_id: int, db: Session = Depends(get_db)):
     db.delete(discount)
     db.commit()
     return {"message": "Discount deleted successfully"}
+
+
+# POST endpoint to create a new user mood
+@app.post("/usermoods/", response_model=UserMoodResponse)
+def create_user_mood(user_mood: UserMoodCreate, db: Session = Depends(get_db)):
+    new_user_mood = UserMood(**user_mood.dict())
+    db.add(new_user_mood)
+    db.commit()
+    db.refresh(new_user_mood)
+    return new_user_mood
+
+# GET endpoint to retrieve all user moods
+@app.get("/usermoods/", response_model=list[UserMoodResponse])
+def get_user_moods(db: Session = Depends(get_db)):
+    return db.query(UserMood).all()
+
+# GET endpoint to retrieve moods by user ID
+@app.get("/usermoods/{user_id}", response_model=list[UserMoodResponse])
+def get_user_moods_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    user_moods = db.query(UserMood).filter(UserMood.UserID == user_id).all()
+    if not user_moods:
+        raise HTTPException(status_code=404, detail="User moods not found")
+    return user_moods
+
+# POST endpoint to create a new restaurant mood
+@app.post("/restaurantmoods/", response_model=RestaurantMoodResponse)
+def create_restaurant_mood(restaurant_mood: RestaurantMoodCreate, db: Session = Depends(get_db)):
+    new_restaurant_mood = RestaurantMood(**restaurant_mood.dict())
+    db.add(new_restaurant_mood)
+    db.commit()
+    db.refresh(new_restaurant_mood)
+    return new_restaurant_mood
+
+# GET endpoint to retrieve all restaurant moods
+@app.get("/restaurantmoods/", response_model=list[RestaurantMoodResponse])
+def get_restaurant_moods(db: Session = Depends(get_db)):
+    return db.query(RestaurantMood).all()
+
+# GET endpoint to retrieve moods by restaurant ID
+@app.get("/restaurantmoods/{restaurant_id}", response_model=list[RestaurantMoodResponse])
+def get_restaurant_moods_by_restaurant_id(restaurant_id: int, db: Session = Depends(get_db)):
+    restaurant_moods = db.query(RestaurantMood).filter(RestaurantMood.RestaurantID == restaurant_id).all()
+    if not restaurant_moods:
+        raise HTTPException(status_code=404, detail="Restaurant moods not found")
+    return restaurant_moods
