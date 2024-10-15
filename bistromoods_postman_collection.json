@@ -301,11 +301,8 @@
           }
         },
         "response": []
-      }
-      
-    ]
-  }
-  
+      },
+    
 	{
     "name": "Retrieve all UserMoods",
     "request": {
@@ -441,5 +438,7 @@
       }
     },
     "response": []
-  },
+  }
+]
+}
   

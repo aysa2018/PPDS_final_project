@@ -52,18 +52,91 @@ By implementing this architecture, the database will facilitate seamless interac
 https://lucid.app/lucidchart/65c785fc-db1b-4660-861f-f5b31761855a/edit?viewport_loc=-1978%2C-1597%2C2327%2C1383%2C0_0&invitationId=inv_7a023b2d-4867-4d8b-9e50-30a211190691
 
 ## API Endpoints
-BistroMoods provides several RESTful API endpoints to interact with the database:
 
-**Users:** Create, retrieve, and delete user profiles.
-**Restaurants:** Add new restaurants, view all listings, and remove entries.
-**Reviews:** Submit, view, update, or delete reviews for restaurants.
-**Discounts:** Manage restaurant discounts by adding, viewing, or deleting them.
-**Search Queries:** Track user searches, retrieve them, and delete records as needed.
-These endpoints allow users and admins to manage all data within the BistroMoods system, ensuring a personalized restaurant recommendation experience based on moods and preferences.
+We used **FastAPI** and **MySQL** to create an API for managing restaurant recommendations based on user moods. This API allows you to create, view, update, and delete **users**, **restaurants**, **reviews**, and **mood-related** data.
+
+## Setting Up & Running Instructions
+
+### 1. Setting up Database
+- Clone this repository or download the source code:
+  ```bash
+  git clone https://github.com/aysa2018/PPDS_final_project.git
+  cd PPDS_final_project
+  ```
+
+- Create a virtual environment:
+  ```bash
+  python -m venv .venv
+  ```
+
+
+- Install the required packages:
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+- Create a `.env` file in the project root directory with your database connection string:
+  ```
+  DATABASE_URL='mysql+pymysql://username:password@host:port/database_name'
+  ```
+  Replace `username`, `password`, `host`, `port`, and `database_name` with your actual MySQL database credentials.
+
+### 2. Running the API
+- Run the FastAPI server:
+  ```bash
+  uvicorn main:app --reload
+  ```
+
+- The API docs for testing are available at:
+  [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) or [http://localhost:8000/docs](http://localhost:8000/docs).
+
+### 3. Using Postman to Interact with the API
+You can use our API in your Postman. Here are examples of a few endpoints:
+
+**1. Get All Users**
+- GET `/users/`
+
+**2. Create a New User**
+- POST `/users/`
+  - Example Request Body:
+  ```json
+  {
+    "Username": "alice",
+    "Email": "alice@example.com",
+    "Password": "password123",
+    "Preferences": {
+      "Cuisine": "Italian"
+    }
+  }
+  ```
+
+**3. Create a New Review**
+- POST `/reviews/`
+  - Example Request Body:
+  ```json
+  {
+    "RestaurantID": 1,
+    "UserID": 1,
+    "Rating": 4.5,
+    "Comment": "Amazing food!"
+  }
+  ```
+
+
+## Usage
+To run the application:
+```bash
+python main.py
+```
+Follow the on-screen instructions to interact with the API and manage users, restaurants, and reviews.
+
+## Libraries Used
 
 The BistroMoods backend utilizes several key libraries:
-**FastAPI:** Provides the framework to build and manage all API endpoints.
-**SQLAlchemy:** Handles interactions with the MySQL database, including table creation and queries.
-**Pydantic:** Ensures validation and proper formatting of API requests and responses.
-**Uvicorn:** Runs the FastAPI application, providing a fast and reliable server.
-These libraries ensure the backend efficiently manages data, while enabling users to access and interact with restaurant recommendations seamlessly.
+
+- **FastAPI**: Provides the framework to build and manage all API endpoints.
+- **SQLAlchemy**: Handles interactions with the MySQL database, including table creation and queries.
+- **Pydantic**: Ensures validation and proper formatting of API requests and responses.
+- **Uvicorn**: Runs the FastAPI application, providing a fast and reliable server.
+
+These libraries ensure the backend efficiently manages data while enabling users to access and interact with restaurant recommendations seamlessly.
