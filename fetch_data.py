@@ -3,12 +3,12 @@ import sqlalchemy as db
 from sqlalchemy.orm import sessionmaker
 
 # Yelp API setup
-API_KEY = ""
+API_KEY = os.getenv("YELP_API_KEY") 
 headers = {"Authorization": f"Bearer {API_KEY}"}
 url = "https://api.yelp.com/v3/businesses/search"
 
 # Database setup
-engine = db.create_engine("")
+DATABASE_URL = os.getenv("DATABASE_URL")
 connection = engine.connect()
 metadata = db.MetaData()
 restaurants = db.Table('Restaurants', metadata, autoload_with=engine)
