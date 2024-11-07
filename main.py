@@ -420,26 +420,23 @@ def get_restaurant_moods_by_restaurant_id(restaurant_id: int, db: Session = Depe
         raise HTTPException(status_code=404, detail="Restaurant moods not found")
     return restaurant_moods
 
-
-# SQLAlchemy model for Reviews
 class ReviewModel(Base):
-    __tablename__ = "reviews"
-    
-    ReviewID = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
-    RestaurantID = Column(BigInteger, ForeignKey("restaurants.RestaurantID"), nullable=False)  # FK to Restaurant
-    UserID = Column(BigInteger, ForeignKey("users.UserID"), nullable=False)  # FK to User
-    Rating = Column(DECIMAL(2,1), nullable=False)
-    Comment = Column(String(1000), nullable=False)  # Comment field corresponds to the review text
-    ReviewDate = Column(TIMESTAMP, default=func.now())
+    __tablename__ = "Reviews"  # Match the exact case in your database
 
-# Pydantic schema for creating a review
+    ReviewID = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    RestaurantID = Column(BigInteger, ForeignKey("restaurants.RestaurantID"), nullable=False)
+    UserID = Column(BigInteger, ForeignKey("users.UserID"), nullable=False)
+    Rating = Column(DECIMAL(2, 1), nullable=False)
+    Comment = Column(String(1000), nullable=False)
+    ReviewDate = Column(TIMESTAMP, server_default=func.now())
+
+
 class ReviewCreate(BaseModel):
     RestaurantID: int
     UserID: int
     Rating: float
-    Comment: str  # Change to match the "Comment" column
+    Comment: str
 
-# Pydantic schema for review response
 class Review(BaseModel):
     ReviewID: int
     RestaurantID: int
@@ -449,9 +446,7 @@ class Review(BaseModel):
     ReviewDate: datetime
 
     class Config:
-        from_attributes = True  # Allows SQLAlchemy objects to be returned as Pydantic models
-
-
+        orm_mode = True
 # POST endpoint to create a new review
 @app.post("/reviews/", response_model=Review)
 def create_review(review: ReviewCreate, db: Session = Depends(get_db)):
@@ -459,13 +454,12 @@ def create_review(review: ReviewCreate, db: Session = Depends(get_db)):
         RestaurantID=review.RestaurantID,
         UserID=review.UserID,
         Rating=review.Rating,
-        Comment=review.Comment  # Corresponds to the Comment column
+        Comment=review.Comment
     )
     db.add(new_review)
     db.commit()
     db.refresh(new_review)
     return new_review
-
 
 # GET endpoint to retrieve all reviews for a specific restaurant
 @app.get("/restaurants/{restaurant_id}/reviews/", response_model=List[Review])
@@ -475,7 +469,6 @@ def get_reviews_for_restaurant(restaurant_id: int, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="No reviews found for this restaurant")
     return reviews
 
-
 # PUT endpoint to update a review by ID
 @app.put("/reviews/{review_id}", response_model=Review)
 def update_review(review_id: int, updated_review: ReviewCreate, db: Session = Depends(get_db)):
@@ -484,11 +477,10 @@ def update_review(review_id: int, updated_review: ReviewCreate, db: Session = De
         raise HTTPException(status_code=404, detail="Review not found")
 
     review.Rating = updated_review.Rating
-    review.Comment = updated_review.Comment  # Updated to match the Comment field
+    review.Comment = updated_review.Comment
     db.commit()
     db.refresh(review)
     return review
-
 
 # DELETE endpoint to delete a review by ID
 @app.delete("/reviews/{review_id}")
