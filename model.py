@@ -15,3 +15,9 @@ class Reviews(Base):
     Rating = Column(DECIMAL(2, 1), nullable=False)
     Comment = Column(Text)
     ReviewDate = Column(TIMESTAMP, default=datetime.utcnow)
+
+# Define the RestaurantMoods model
+class RestaurantMoods(Base):
+    __tablename__ = 'restaurant_mood'
+    RestaurantID = Column(BIGINT, ForeignKey('restaurants.RestaurantID'), primary_key=True, nullable=False)
+    MoodName = Column(String(255), primary_key=True, nullable=False)
