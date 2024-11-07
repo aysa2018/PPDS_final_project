@@ -9,14 +9,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Yelp API setup
-#API_KEY = os.getenv("YELP_API_KEY")
-API_KEY="G4u_kUc5wRsLGPw2R-27XnGBirwGF-fJxjRn5jDOegSKmcmtdC93P9OfBddYstaPSW_aE065hJea3wCo4d-DlTXSacWGv9Is-YBel6xTMTX6Qv0DDg-pEJMzZ6YqZ3Yx"
+API_KEY = os.getenv("YELP_API_KEY")
 headers = {"Authorization": f"Bearer {API_KEY}"}
 reviews_url_template = "https://api.yelp.com/v3/businesses/{}/reviews"
 
 # Database setup
-DATABASE_URL="mysql+pymysql://bistromoods:F.iZMuY%27%5E%5EgYhdFG@34.44.42.132:3306/bistromoods"
-#DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
 engine = db.create_engine(DATABASE_URL)
 metadata = db.MetaData()
 restaurants_table = db.Table('Restaurants', metadata, autoload_with=engine)
