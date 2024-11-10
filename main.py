@@ -10,17 +10,39 @@ from datetime import datetime
 from datetime import date
 from dotenv import load_dotenv
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
-# Load environment variables from .env
+# Initialize FastAPI app
+app = FastAPI()
 
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Temporary OPTIONS route to handle preflight requests to /users/ endpoint
+#@app.options("/users/")
+#async def preflight_handler():
+    #return {"message": "Preflight successful"}
+
+#import passlib and set up password hashing
+
+from passlib.context import CryptContext
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
 
 # Database configuration from .env file
-DATABASE_URL = ("mysql+pymysql://bistromoods:F.iZMuY%27%5E%5EgYhdFG@34.44.42.132:3306/bistromoods")
+DATABASE_URL= "mysql+pymysql://bistromoods:F.iZMuY%27%5E%5EgYhdFG@34.44.42.132:3306/bistromoods"
 
 print(f"DATABASE_URL: {DATABASE_URL}")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL is not set in the environment or .env file")
-
 
 # Set up SQLAlchemy engine and session
 engine = create_engine(DATABASE_URL)
@@ -29,15 +51,14 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Base class for SQLAlchemy models
 Base = declarative_base()
 
-
 # SQLAlchemy model for User
 class UserModel(Base):
-    __tablename__ = "users"
-
+    __tablename__ = "users" #updated to correct table in database
+    
     UserID = Column(Integer, primary_key=True, index=True)
     Username = Column(String(50), unique=True, index=True, nullable=False)
     Email = Column(String(100), unique=True, index=True, nullable=False)
-    PasswordHash = Column(String(255), nullable=False)  # You should hash passwords!
+    PasswordHash = Column(String(255), nullable=False)  # hashing
     Preferences = Column(JSON, nullable=True)
 
 # Pydantic schema for creating a new user
@@ -58,7 +79,7 @@ class User(BaseModel):
         from_attributes = True  # Allows SQLAlchemy objects to be returned as Pydantic models
 # SQLAlchemy model for Restaurant
 class RestaurantModel(Base):
-    __tablename__ = "restaurants"
+    __tablename__ = "Restaurants"
     RestaurantID = Column(Integer, primary_key=True, index=True)
     Name = Column(String(100), nullable=False)
     Address = Column(String(255), nullable=False)
@@ -192,10 +213,7 @@ class RestaurantMoodResponse(BaseModel):
 
 
 # Create all tables in the database
-Base.metadata.create_all(bind=engine)
-
-# Initialize FastAPI app
-app = FastAPI()
+#Base.metadata.create_all(bind=engine)
 
 # Dependency to get the database session
 def get_db():
@@ -213,11 +231,14 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
-    # Create a new user instance
+    # Hash the password before saving
+    hashed_password = get_password_hash(user.Password)
+    
+    # Create a new user instance with the hashed password
     new_user = UserModel(
         Username=user.Username,
         Email=user.Email,
-        PasswordHash=user.Password,  
+        PasswordHash=hashed_password,  # Use the hashed password here
         Preferences=user.Preferences
     )
     db.add(new_user)
@@ -421,7 +442,7 @@ def get_restaurant_moods_by_restaurant_id(restaurant_id: int, db: Session = Depe
     return restaurant_moods
 
 class ReviewModel(Base):
-    __tablename__ = "Reviews"  # Match the exact case in your database
+    __tablename__ = "Reviews"  # Matching to table in database
 
     ReviewID = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     RestaurantID = Column(BigInteger, ForeignKey("restaurants.RestaurantID"), nullable=False)
