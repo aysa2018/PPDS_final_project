@@ -38,7 +38,7 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 # Database configuration from .env file
-DATABASE_URL= "mysql+pymysql://bistromoods:F.iZMuY%27%5E%5EgYhdFG@34.44.42.132:3306/bistromoods"
+DATABASE_URL= "DATABASE_URL"
 
 print(f"DATABASE_URL: {DATABASE_URL}")
 if not DATABASE_URL:
