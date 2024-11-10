@@ -20,3 +20,15 @@ db_connection = mysql.connector.connect(
 )
 
 cursor = db_connection.cursor()
+# Query to select ReviewID, RestaurantID, and Comment fields
+query = "SELECT ReviewID, RestaurantID, Comment FROM Reviews;"
+
+cursor.execute(query)
+
+# Fetch all rows from the query result
+reviews = cursor.fetchall()
+
+# Print the first few rows to confirm the data retrieval
+for review in reviews[:5]:  # Print just the first 5 for verification
+    review_id, restaurant_id, comment = review
+    print(f"ReviewID: {review_id}, RestaurantID: {restaurant_id}, Comment: {comment}")
