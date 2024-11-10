@@ -54,11 +54,7 @@ def extract_keywords(comment):
     return keywords
 
 
-# Process each review and extract keywords
-for review in reviews:
-    review_id, restaurant_id, comment = review
-    keywords = extract_keywords(comment)
-    print(f"ReviewID: {review_id}, RestaurantID: {restaurant_id}, Keywords: {keywords}")
+
 
 # Extract and insert keywords
 insert_query = "INSERT INTO RestaurantMood (RestaurantID, MoodName) VALUES (%s, %s)"
