@@ -5,12 +5,12 @@ from dotenv import load_dotenv
 import os
 
 # Yelp API setup
-API_KEY = "20CbT1nUvgb-n1pO-SaPDN3ALKDBSXd-jJ4MuQe6KBdxzvWRG-EXJw1p56Box_GOkm_sGvc63LnAt-BJREyatu08iq4D5VCAH17Ney0uOObadLEidplVolwZqawjZ3Yx"
+API_KEY = "API_Key"
 headers = {"Authorization": f"Bearer {API_KEY}"}
 url = "https://api.yelp.com/v3/businesses/search"
 
 # Database setup
-engine = db.create_engine("mysql+pymysql://bistromoods:F.iZMuY'^^gYhdFG@34.44.42.132:3306/bistromoods")
+engine = db.create_engine("DATABASE_URL")
 connection = engine.connect()
 metadata = db.MetaData()
 restaurants = db.Table('Restaurants', metadata, autoload_with=engine)
