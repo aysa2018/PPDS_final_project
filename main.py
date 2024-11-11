@@ -11,6 +11,7 @@ from datetime import date
 from dotenv import load_dotenv
 import os
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -24,10 +25,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Temporary OPTIONS route to handle preflight requests to /users/ endpoint
-#@app.options("/users/")
-#async def preflight_handler():
-    #return {"message": "Preflight successful"}
+@app.options("/login/")
+async def login_options():
+    return JSONResponse({"status": "preflight OK"})
 
 #import passlib and set up password hashing
 
@@ -70,14 +70,14 @@ def get_db():
 
 # Define the model for login data
 class UserLogin(BaseModel):
-    Username: str
+    Email: str
     Password: str
 
 # POST endpoint for user login
 @app.post("/login/")
 def login(user: UserLogin, db: Session = Depends(get_db)):
     # Look for the user in the database
-    db_user = db.query(UserModel).filter(UserModel.Username == user.Username).first()
+    db_user = db.query(UserModel).filter(UserModel.Email == user.Email).first()
     if not db_user:
         raise HTTPException(status_code=400, detail="Invalid username or password")
     
