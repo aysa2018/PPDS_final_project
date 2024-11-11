@@ -38,7 +38,7 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 # Database configuration from .env file
-DATABASE_URL= "DATABASE_URL"
+DATABASE_URL= "mysql+pymysql://bistromoods:F.iZMuY%27%5E%5EgYhdFG@34.44.42.132:3306/bistromoods"
 
 print(f"DATABASE_URL: {DATABASE_URL}")
 if not DATABASE_URL:
@@ -60,6 +60,33 @@ class UserModel(Base):
     Email = Column(String(100), unique=True, index=True, nullable=False)
     PasswordHash = Column(String(255), nullable=False)  # hashing
     Preferences = Column(JSON, nullable=True)
+    
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Define the model for login data
+class UserLogin(BaseModel):
+    Username: str
+    Password: str
+
+# POST endpoint for user login
+@app.post("/login/")
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    # Look for the user in the database
+    db_user = db.query(UserModel).filter(UserModel.Username == user.Username).first()
+    if not db_user:
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+    
+    # Verify the password
+    if not pwd_context.verify(user.Password, db_user.PasswordHash):
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+
+    # Return success if credentials are valid
+    return {"message": "Login successful"}
 
 # Pydantic schema for creating a new user
 class UserCreate(BaseModel):

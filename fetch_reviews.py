@@ -54,23 +54,11 @@ def extract_keywords(comment):
     return keywords
 
 
-
-
-# Extract and insert keywords
-insert_query = "INSERT INTO RestaurantMood (RestaurantID, MoodName) VALUES (%s, %s)"
-
+# Process each review and extract keywords
 for review in reviews:
     review_id, restaurant_id, comment = review
     keywords = extract_keywords(comment)
-
-    # Insert each keyword into RestaurantMood
-    for keyword in keywords.split(", "):  # Adjust if necessary
-        cursor.execute(insert_query, (restaurant_id, keyword))
-
-# Commit changes before closing
-db_connection.commit()
-
-
+    print(f"ReviewID: {review_id}, RestaurantID: {restaurant_id}, Keywords: {keywords}")
 
 # Close the database connection
 cursor.close()
