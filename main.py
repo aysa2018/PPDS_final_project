@@ -329,27 +329,40 @@ def delete_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
 def search_restaurants(
     keyword: str,
     rating: Optional[float] = Query(None, description="Minimum rating for the restaurant"),
-    price_range: Optional[str] = Query(None, description="Price range like $, $$, $$$"),
+    price_range: Optional[str] = Query(None, description="Price range like 'Low', 'Medium', 'High'"),
+    dietary_restriction: Optional[str] = Query(None, description="Dietary restriction like 'Vegetarian', 'Vegan', 'Gluten-Free'"),
+    special_feature: Optional[str] = Query(None, description="Special feature like 'Family Friendly', 'Pet Friendly', 'Outdoor Seating'"),
     db: Session = Depends(get_db)
 ):
-    # Start with a base query that joins moods for keyword matching
+    # Base query to join moods for keyword matching
     query = db.query(RestaurantModel).options(joinedload(RestaurantModel.moods))
     
-    # Apply filters based on the additional parameters
+    # Map user-friendly price range to database values
+    price_map = {
+        "Low": ["$", "$$"],
+        "Medium": ["$$$"],
+        "High": ["$$$$"]
+    }
+    
+    # Apply filters based on parameters
     if rating is not None:
         query = query.filter(RestaurantModel.Rating >= rating)
-    if price_range:
-        query = query.filter(RestaurantModel.PriceRange == price_range)
+    if price_range in price_map:
+        query = query.filter(RestaurantModel.PriceRange.in_(price_map[price_range]))
     
-    # Fetch all filtered restaurants to apply keyword matching on CuisineType and MoodName
+    # Fetch all filtered restaurants to apply keyword matching on `Name`, `CuisineType`, and `MoodName`
     all_restaurants = query.all()
-    # Filter based on the exact match for CuisineType and fuzzy match for MoodName
+    
+    # Filter based on Name, CuisineType, MoodName, and other filters
     matching_restaurants = [
         restaurant for restaurant in all_restaurants
-        if keyword.lower() == restaurant.CuisineType.lower()  # Exact match for CuisineType
-        or any(fuzz.partial_ratio(keyword.lower(), mood.MoodName.lower()) > 90 for mood in restaurant.moods)  # Fuzzy match for moods
+        if (keyword.lower() in restaurant.Name.lower()  # Match in Name
+            or keyword.lower() == restaurant.CuisineType.lower()  # Exact match in CuisineType
+            or any(fuzz.partial_ratio(keyword.lower(), mood.MoodName.lower()) > 90 for mood in restaurant.moods))  # Fuzzy match in moods
+        and (not dietary_restriction or dietary_restriction.lower() in restaurant.CuisineType.lower())  # Filter by dietary restriction
+        and (not special_feature or any(special_feature.lower() == mood.MoodName.lower() for mood in restaurant.moods))  # Filter by special features
     ]
-   
+    
     if not matching_restaurants:
         raise HTTPException(status_code=404, detail="No restaurants match the search criteria")
     
