@@ -20,16 +20,9 @@ We chose SQL for BistroMoods due to its structured nature, which is well-suited 
 
 ## Prerequisites
 - MySQL Server
-- MySQL Workbench 
+- MySQL Workbench (optional but very user friendly to access your database)
+- Python 3.7
   
-## Setup
-1. Use the `git clone` command to clone the repository to download the SQL script to your local machine.
-2. Open MySQL Workbench and create a new database on your local machine, then select it.
-3. Load and execute the SQL script by going to File > Open SQL Script. Navigate to the cloned repository folder where the SQL script is located. Select the SQL script file: bistromoods.sql and open it.
-4. Once the script is loaded into the editor, click the Execute button (the lightning bolt icon) to run the script. This will create the tables in the selected database.
-5. After creating the tables ensure to also open and excecute the insertdata.sql to load the freshly created tables with representative data.
-6. Once the insertdata.sql script is excecuted the data table is ready for use.
-
 ## Usage
 In the BistroMoods web application, users will interact with a user-friendly front end, while the back end will handle all interactions with the database. Here’s how the database will be utilized:
 
@@ -57,40 +50,75 @@ We used **FastAPI** and **MySQL** to create an API for managing restaurant recom
 
 ## Setting Up & Running Instructions
 
-### 1. Setting up Database
+### 1. Clone the Repository
+
 - Clone this repository or download the source code:
   ```bash
   git clone https://github.com/aysa2018/PPDS_final_project.git
   cd PPDS_final_project
   ```
+### 2. Install MySQL
 
-- Create a virtual environment:
+Ensure you have MySQL Server and MySQL Workbench installed. MySQL Workbench is optional but recommended for easier database management.
+
+### 3. Create the Database and Tables 
+
+  1. Open MySQL Workbench (or your preferred MySQL interface).
+     
+  3. Create a new database:
+       - Run the following SQL command to create an empty database:
+         ```bash
+         CREATE DATABASE bistromoods;
+         ```
+         
+  3. Import the SQL files:
+     
+      - Open the bistromoods.sql file from the cloned repository and run it in MySQL Workbench.
+        This file creates the necessary tables for the application.
+        
+      - Then, open the insertdata.sql file and run it to populate the tables with sample data.
+        
+  4. Configure the Database Connection
+      1. In the project root directory, create a .env file to securely store your database connection   string.
+
+      2. In the .env file, add the following line:
+          ```
+          DATABASE_URL='mysql+pymysql://username:password@host:port/database_name'
+          ```
+Replace `username`, `password`, `host`, `port`, and `database_name` with your actual MySQL database credentials.
+
+### 4. FastAPI Server Setup
+
+After setting up the database, follow these steps to install and run the FastAPI server.
+
+  1. Create and activate a virtual enviornment:
+     
+  - Create a virtual environment:
+   
   ```bash
   python -m venv .venv
   ```
 
-
-- Install the required packages:
+  - Activate the virtual enviornment
+  
+  ```
+  .venv\Scripts\activate
+  ```
+  2. Install required packages:
+     
   ```bash
   pip install -r requirements.txt
   ```
-
-- Create a `.env` file in the project root directory with your database connection string:
-  ```
-  DATABASE_URL='mysql+pymysql://username:password@host:port/database_name'
-  ```
-  Replace `username`, `password`, `host`, `port`, and `database_name` with your actual MySQL database credentials.
-
-### 2. Running the API
-- Run the FastAPI server:
+   
+  3. Run the FastAPI server:
   ```bash
   uvicorn main:app --reload
   ```
 
 - The API docs for testing are available at:
-  [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) or [http://localhost:8000/docs](http://localhost:8000/docs).
+  [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) 
 
-### 3. Using Postman to Interact with the API
+### 5. Using Postman to Interact with the API
 You can use our API in your Postman. Here are examples of a few endpoints:
 
 **1. Get All Users**
@@ -122,13 +150,45 @@ You can use our API in your Postman. Here are examples of a few endpoints:
   }
   ```
 
-
-## Usage
-To run the application:
-```bash
-python main.py
+## API endpoints used with frontend examples
+1. User Sign-Up
+- Endpoint: POST /users/
+- Description: Creates a new user account.
+- Request Body:
+ ```json
+{
+  "Username": "string",
+  "Email": "string",
+  "Password": "string",
+  "Preferences": {"key": "value"}  
+}
+ ```
+- Response:
+  - 200 OK: Returns the created user details.
+  - 400 Bad Request: Username is already registered.
+    
+2. User Login
+- Endpoint: POST /login/
+- Description: Authenticates a user with email and password.
+- Request Body:
+```json
+{
+  "Email": "string",
+  "Password": "string"
+}
 ```
-Follow the on-screen instructions to interact with the API and manage users, restaurants, and reviews.
+- Response:
+  - 200 OK: { "message": "Login successful" }
+  - 400 Bad Request: Invalid email or password.
+    
+3. Keyword Search
+- Endpoint: GET /restaurants/search/
+- Description: Searches for restaurants based on a keyword match in CuisineType or MoodName.
+- Query Parameter:
+  - keyword: The search keyword.
+- Response:
+  - 200 OK: Returns a list of matching restaurants.
+  - 404 Not Found: No restaurants match the search criteria.
 
 ## Libraries Used
 
@@ -138,5 +198,7 @@ The BistroMoods backend utilizes several key libraries:
 - **SQLAlchemy**: Handles interactions with the MySQL database, including table creation and queries.
 - **Pydantic**: Ensures validation and proper formatting of API requests and responses.
 - **Uvicorn**: Runs the FastAPI application, providing a fast and reliable server.
+- **fuzzywuzzy**: Library for keyword matching and text similarity.
+- **passlib**: Provides password hashing for secure user authentication.
 
 These libraries ensure the backend efficiently manages data while enabling users to access and interact with restaurant recommendations seamlessly.
