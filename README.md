@@ -196,9 +196,10 @@ The BistroMoods backend utilizes several key libraries:
 
 - **FastAPI**: Provides the framework to build and manage all API endpoints.
 - **SQLAlchemy**: Handles interactions with the MySQL database, including table creation and queries.
+- **pymysql**: Database Driver
 - **Pydantic**: Ensures validation and proper formatting of API requests and responses.
 - **Uvicorn**: Runs the FastAPI application, providing a fast and reliable server.
 - **fuzzywuzzy**: Library for keyword matching and text similarity.
-- **passlib**: Provides password hashing for secure user authentication.
+- **passlib[bcrypt]**: Provides password hashing for secure user authentication.
 
 These libraries ensure the backend efficiently manages data while enabling users to access and interact with restaurant recommendations seamlessly.
