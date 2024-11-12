@@ -182,7 +182,7 @@ You can use our API in your Postman. Here are examples of a few endpoints:
   - 400 Bad Request: Invalid email or password.
     
 3. Keyword Search
-- Endpoint: GET /restaurants/search/
+- Endpoint: GET /restaurants/search/?keyword={keyword}
 - Description: Searches for restaurants based on a keyword match in CuisineType or MoodName.
 - Query Parameter:
   - keyword: The search keyword.
