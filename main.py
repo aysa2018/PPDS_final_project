@@ -1,8 +1,7 @@
-from fastapi import FastAPI, HTTPException, Depends
-from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP, ForeignKey, Float, or_
-from sqlalchemy.orm import relationship, joinedload
+from fastapi import FastAPI, HTTPException, Depends, Query
+from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP, ForeignKey, Float, or_, and_
+from sqlalchemy.orm import relationship, joinedload, declarative_base
 from sqlalchemy.sql import func
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, Dict, List 
@@ -327,16 +326,30 @@ def delete_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/restaurants/search/", response_model=List[Restaurant])
-def search_restaurants(keyword: str, db: Session = Depends(get_db)):
-    all_restaurants = db.query(RestaurantModel).options(joinedload(RestaurantModel.moods)).all()
+def search_restaurants(
+    keyword: str,
+    rating: Optional[float] = Query(None, description="Minimum rating for the restaurant"),
+    price_range: Optional[str] = Query(None, description="Price range like $, $$, $$$"),
+    db: Session = Depends(get_db)
+):
+    # Start with a base query that joins moods for keyword matching
+    query = db.query(RestaurantModel).options(joinedload(RestaurantModel.moods))
     
-    # Filter based on fuzzy match to keyword in both CuisineType and MoodName
+    # Apply filters based on the additional parameters
+    if rating is not None:
+        query = query.filter(RestaurantModel.Rating >= rating)
+    if price_range:
+        query = query.filter(RestaurantModel.PriceRange == price_range)
+    
+    # Fetch all filtered restaurants to apply keyword matching on CuisineType and MoodName
+    all_restaurants = query.all()
+    # Filter based on the exact match for CuisineType and fuzzy match for MoodName
     matching_restaurants = [
         restaurant for restaurant in all_restaurants
-        if fuzz.partial_ratio(keyword.lower(), restaurant.CuisineType.lower()) > 70
-        or any(fuzz.partial_ratio(keyword.lower(), mood.MoodName.lower()) > 70 for mood in restaurant.moods)
+        if keyword.lower() == restaurant.CuisineType.lower()  # Exact match for CuisineType
+        or any(fuzz.partial_ratio(keyword.lower(), mood.MoodName.lower()) > 90 for mood in restaurant.moods)  # Fuzzy match for moods
     ]
-    
+   
     if not matching_restaurants:
         raise HTTPException(status_code=404, detail="No restaurants match the search criteria")
     
