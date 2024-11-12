@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
-from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP, ForeignKey, Float
-from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine, Column, Integer, String, JSON, BigInteger, DECIMAL, Date, TIMESTAMP, ForeignKey, Float, or_
+from sqlalchemy.orm import relationship, joinedload
 from sqlalchemy.sql import func
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fuzzywuzzy import fuzz
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -114,6 +115,10 @@ class RestaurantModel(Base):
     PriceRange = Column(String(10), nullable=True)  # Example: $, $$, $$$
     Rating = Column(Float, nullable=True)
     Ambiance = Column(String(100), nullable=True)
+    #Relationdhip with mood table
+    moods = relationship("RestaurantMood", back_populates="restaurant")
+
+    
 
 # Pydantic schema for creating a restaurant
 class RestaurantCreate(BaseModel):
@@ -225,6 +230,8 @@ class RestaurantMood(Base):
     id = Column(Integer, primary_key=True, index=True)  # Add primary key
     RestaurantID = Column(Integer, ForeignKey("Restaurants.RestaurantID"), nullable=False)
     MoodName = Column(String(255), nullable=False)
+    #Add relationship back to restaurant table
+    restaurant = relationship("RestaurantModel", back_populates="moods")
 
 class RestaurantMoodCreate(BaseModel):
     RestaurantID: int
@@ -317,6 +324,24 @@ def delete_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
     db.delete(restaurant)
     db.commit()
     return {"message": "Restaurant deleted successfully"}
+
+
+@app.get("/restaurants/search/", response_model=List[Restaurant])
+def search_restaurants(keyword: str, db: Session = Depends(get_db)):
+    all_restaurants = db.query(RestaurantModel).options(joinedload(RestaurantModel.moods)).all()
+    
+    # Filter based on fuzzy match to keyword in both CuisineType and MoodName
+    matching_restaurants = [
+        restaurant for restaurant in all_restaurants
+        if fuzz.partial_ratio(keyword.lower(), restaurant.CuisineType.lower()) > 70
+        or any(fuzz.partial_ratio(keyword.lower(), mood.MoodName.lower()) > 70 for mood in restaurant.moods)
+    ]
+    
+    if not matching_restaurants:
+        raise HTTPException(status_code=404, detail="No restaurants match the search criteria")
+    
+    return matching_restaurants
+
 
 # POST endpoint to create a new search query
 @app.post("/searchqueries/", response_model=SearchQuery)
