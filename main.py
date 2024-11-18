@@ -12,6 +12,7 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fuzzywuzzy import fuzz
+import spacy
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -255,6 +256,12 @@ def get_db():
         yield db
     finally:
         db.close()
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to BistroMoods API"}
+@app.get("/favicon.ico")
+def favicon():
+    return JSONResponse(content={}, status_code=204)  # Empty response
 
 # POST endpoint to create a new user
 @app.post("/users/", response_model=User)
@@ -324,50 +331,72 @@ def delete_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Restaurant deleted successfully"}
 
+nlp = spacy.load('en_core_web_sm')
+
+# Keyword extraction function
+def extract_keywords(user_prompt: str) -> List[str]:
+    doc = nlp(user_prompt)
+    # Extract relevant keywords (nouns, adjectives, and proper nouns)
+    keywords = [token.lemma_.lower() for token in doc if token.pos_ in ('NOUN', 'ADJ', 'PROPN')]
+    print(f"Extracted Keywords: {keywords}")  # Debugging statement
+    return keywords
 
 @app.get("/restaurants/search/", response_model=List[Restaurant])
 def search_restaurants(
-    keyword: str,
+    user_prompt: str,
     rating: Optional[float] = Query(None, description="Minimum rating for the restaurant"),
     price_range: Optional[str] = Query(None, description="Price range like 'Low', 'Medium', 'High'"),
     dietary_restriction: Optional[str] = Query(None, description="Dietary restriction like 'Vegetarian', 'Vegan', 'Gluten-Free'"),
     special_feature: Optional[str] = Query(None, description="Special feature like 'Family Friendly', 'Pet Friendly', 'Outdoor Seating'"),
     db: Session = Depends(get_db)
 ):
-    # Base query to join moods for keyword matching
+    # Extract keywords from user prompt
+    keywords = extract_keywords(user_prompt)
+
+    # Base query to join moods for matching
     query = db.query(RestaurantModel).options(joinedload(RestaurantModel.moods))
-    
+
     # Map user-friendly price range to database values
     price_map = {
         "Low": ["$", "$$"],
         "Medium": ["$$$"],
         "High": ["$$$$"]
     }
-    
-    # Apply filters based on parameters
+
+    # Apply filters based on explicit parameters
     if rating is not None:
         query = query.filter(RestaurantModel.Rating >= rating)
     if price_range in price_map:
         query = query.filter(RestaurantModel.PriceRange.in_(price_map[price_range]))
     
-    # Fetch all filtered restaurants to apply keyword matching on `Name`, `CuisineType`, and `MoodName`
+    # Fetch all filtered restaurants to apply keyword matching
     all_restaurants = query.all()
-    
-    # Filter based on Name, CuisineType, MoodName, and other filters
-    matching_restaurants = [
-        restaurant for restaurant in all_restaurants
-        if (keyword.lower() in restaurant.Name.lower()  # Match in Name
-            or keyword.lower() == restaurant.CuisineType.lower()  # Exact match in CuisineType
-            or any(fuzz.partial_ratio(keyword.lower(), mood.MoodName.lower()) > 90 for mood in restaurant.moods))  # Fuzzy match in moods
-        and (not dietary_restriction or dietary_restriction.lower() in restaurant.CuisineType.lower())  # Filter by dietary restriction
-        and (not special_feature or any(special_feature.lower() == mood.MoodName.lower() for mood in restaurant.moods))  # Filter by special features
-    ]
-    
+
+    # Filter restaurants based on matching all keywords
+    matching_restaurants = []
+    for restaurant in all_restaurants:
+        # Check if all keywords match at least one attribute
+        if all(
+            keyword in restaurant.Name.lower() or
+            keyword in restaurant.CuisineType.lower() or
+            any(keyword in mood.MoodName.lower() for mood in restaurant.moods)
+            for keyword in keywords
+        ):
+            # Check other filters: dietary restriction and special features
+            dietary_match = (
+                not dietary_restriction or dietary_restriction.lower() in restaurant.CuisineType.lower()
+            )
+            special_feature_match = (
+                not special_feature or any(special_feature.lower() == mood.MoodName.lower() for mood in restaurant.moods)
+            )
+            
+            if dietary_match and special_feature_match:
+                matching_restaurants.append(restaurant)
+
     if not matching_restaurants:
         raise HTTPException(status_code=404, detail="No restaurants match the search criteria")
-    
-    return matching_restaurants
 
+    return matching_restaurants
 
 # POST endpoint to create a new search query
 @app.post("/searchqueries/", response_model=SearchQuery)
@@ -545,7 +574,7 @@ class Review(BaseModel):
     ReviewDate: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 # POST endpoint to create a new review
 @app.post("/reviews/", response_model=Review)
 def create_review(review: ReviewCreate, db: Session = Depends(get_db)):
