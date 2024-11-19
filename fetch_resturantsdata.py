@@ -1,6 +1,15 @@
 import requests
+import os
 import sqlalchemy as db
+from dotenv import load_dotenv
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+
+print(f"YELP_API_KEY: {os.getenv('YELP_API_KEY')}")
+print(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Yelp API setup
 API_KEY = os.getenv("YELP_API_KEY") 
@@ -9,6 +18,7 @@ url = "https://api.yelp.com/v3/businesses/search"
 
 # Database setup
 DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL) 
 connection = engine.connect()
 metadata = db.MetaData()
 restaurants = db.Table('Restaurants', metadata, autoload_with=engine)
@@ -18,7 +28,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 # Total number of restaurants to fetch
-total_entries = 200
+total_entries = 2
 limit_per_request = 50  # Maximum Yelp allows per request
 
 # Loop to fetch and insert data
