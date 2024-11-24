@@ -31,7 +31,7 @@ for offset in range(0, total_entries, limit_per_request):
         "location": "New York, NY",
         "categories": "restaurants",
         "limit": limit_per_request,
-        "offset": offset  # Increment offset for pagination according to the yelp documentation
+        "offset": offset  # Increment offset for pagination according to the Yelp documentation
     }
 
     # Fetch data from Yelp API
