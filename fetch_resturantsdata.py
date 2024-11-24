@@ -5,9 +5,6 @@ from dotenv import load_dotenv
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-print(f"YELP_API_KEY: {os.getenv('YELP_API_KEY')}")
-print(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
-
 # Load environment variables from .env file
 load_dotenv()
 
@@ -28,7 +25,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 # Total number of restaurants to fetch
-total_entries = 2
+total_entries = 200
 limit_per_request = 50  # Maximum Yelp allows per request
 
 # Loop to fetch and insert data
@@ -37,7 +34,7 @@ for offset in range(0, total_entries, limit_per_request):
         "location": "New York, NY",
         "categories": "restaurants",
         "limit": limit_per_request,
-        "offset": offset  # Increment offset for pagination
+        "offset": offset  # Increment offset for pagination according to the yelp documentation
     }
 
     # Fetch data from Yelp API
