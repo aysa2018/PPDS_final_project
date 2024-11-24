@@ -1,7 +1,5 @@
 import requests
-import os
 import sqlalchemy as db
-from dotenv import load_dotenv
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
@@ -15,7 +13,6 @@ url = "https://api.yelp.com/v3/businesses/search"
 
 # Database setup
 DATABASE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL) 
 connection = engine.connect()
 metadata = db.MetaData()
 restaurants = db.Table('Restaurants', metadata, autoload_with=engine)
