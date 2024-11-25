@@ -115,6 +115,7 @@ class RestaurantModel(Base):
     PriceRange = Column(String(10), nullable=True)  # Example: $, $$, $$$
     Rating = Column(Float, nullable=True)
     Ambiance = Column(String(100), nullable=True)
+    YelpURL = Column(String(255), nullable=True) 
     #Relationdhip with mood table
     moods = relationship("RestaurantMood", back_populates="restaurant")
 
