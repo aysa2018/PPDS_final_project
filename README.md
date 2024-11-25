@@ -76,20 +76,49 @@ After setting up the database, follow these steps to install and run the FastAPI
   ```
 
   - Activate the virtual enviornment
-  
+  # For Linux/macOS
   ```
   .venv\Scripts\activate
+  ```
+
+  # For Windows
+  ```
+  venv\Scripts\activate
   ```
   2. Install required packages:
      
   ```bash
   pip install -r requirements.txt
   ```
-   
-  3. Run the FastAPI server:
+  or 
+
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+  3. Run the backend server:
   ```bash
   uvicorn main:app --reload
   ```
+### 3. Frontend
+- Clone this repository or download the source code for frontend:
+  ```bash
+  git clone https://github.com/aysa2018/bistromoods_frontend.git
+  cd bistromoods_frontend
+  ```
+
+- Install dependencies:
+  ```bash
+    npm install
+  ```
+- Start the frontend server:
+  ```bash
+    npm start
+  ```
+- Access the application: 
+  
+  Open your browser and navigate to http://localhost:3000
+
 
 - The API docs for testing are available at:
   [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) 
