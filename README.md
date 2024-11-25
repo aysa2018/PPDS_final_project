@@ -2,50 +2,30 @@
 
 BistroMoods is a web application that helps users find restaurants based on their moods. The data model captures essential information about users, moods, restaurants, reviews, ect. It connects users' emotional states with restaurant recommendations through a relational database, enabling the application to analyze reviews and suggest dining options that align with users' feelings.
 
-## Data Model
+## Features
+- **Mood-Based Recommendations**: Enter a mood, and BistroMoods finds matching restaurants.
+- **Dynamic Restaurant Listings**: Displays restaurant details in an interactive card layout.
+- **Interactive UI**: Cards with hover effects and clickable links redirect to Yelp.
+- **Custom Filters**: Supports filters like rating, price range, dietary restrictions, and special features.
 
-The BistroMoods data model is designed to connect user moods with restaurant recommendations. It consists of six main entities:
+---
 
-- **Users:** Stores user information, including usernames and emails, along with preferences for cuisine and dietary restrictions.
-- **Moods:** Represents different emotional states influencing restaurant choices, such as “Happy,” “Relaxed,” or “Adventurous.” This enhances the search functionality by allowing users to filter based on their current feelings.
-- **Restaurants:** Contains details about various restaurants, including names, addresses, cuisine types, price ranges, ambiance, and average ratings.
-- **Discounts:** Stores information about discounts offered by restaurants, allowing users to find cost-effective dining options.
-- **Reviews:** Links users to their feedback on restaurants, capturing ratings and comments, which are essential for personalized recommendations.
-- **SearchQueries:** Tracks user search queries to analyze preferences and improve recommendations based on user moods.
+## Repository Structure
 
-These entities interact to enable users to find restaurants that match their moods based on the analysis of reviews and available discounts.
+### Backend: **[bistromoods](https://github.com/yourusername/bistromoods)**
 
-## Why SQL?
-We chose SQL for BistroMoods due to its structured nature, which is well-suited for managing the relationships between moods, users, restaurants, and reviews. SQL databases allow for efficient querying and retrieval of data, crucial for providing personalized restaurant recommendations based on user mood. Additionally, SQL helps ensure data integrity and consistency through enforced relationships and constraints, making it an ideal choice for this project.
 
-## Prerequisites
-- MySQL Server
-- MySQL Workbench (optional but very user friendly to access your database)
-- Python 3.7
-  
-## Usage
-In the BistroMoods web application, users will interact with a user-friendly front end, while the back end will handle all interactions with the database. Here’s how the database will be utilized:
+### Frontend: **[bistromoods_frontend](https://github.com/yourusername/bistromoods_frontend)**
 
-1. **User Registration and Management:** 
-   - Users will register through the front end, providing their usernames, emails, and password. This information will be securely stored in the **Users** table by the back end.
-  
-2. **Mood Selection:**
-   - When users select their current mood on the front end, the application will use the back end to query the **Moods** table. This selection will influence the restaurant recommendations.
 
-3. **Restaurant Recommendations:**
-   - Users can input their mood and any additional preferences through the front end. The back end will query the **Restaurants** table based on this input, considering filters like cuisine type or price range.
-   - The response will include restaurant details such as name, address, ambiance, rating, and any active discounts from the **Discounts** table.
 
-4. **Search Queries Tracking:**
-   - Each search made by users will be logged in the **SearchQueries** table by the back end, capturing the mood, sentiment keywords, and any filters used. This will assist in refining the recommendation algorithm based on user preferences over time.
-
-By implementing this architecture, the database will facilitate seamless interactions between the front end and back end, ensuring personalized and relevant dining options based on users' moods without direct database access.
 
 ## Link to ER Diagram 
 https://lucid.app/lucidchart/65c785fc-db1b-4660-861f-f5b31761855a/edit?viewport_loc=-1978%2C-1597%2C2327%2C1383%2C0_0&invitationId=inv_7a023b2d-4867-4d8b-9e50-30a211190691
 
 
-## Setting Up & Running Instructions
+
+## Installation
 
 ### 1. Clone the Repository
 
@@ -126,7 +106,33 @@ Once both repositories are cloned, for further use, just run the backend server 
   ```bash
     npm start
   ```
-  for frontend
+  for frontend.
+
+## Usage
+1. Open the frontend in your browser.
+2. Enter a mood (e.g., "happy") in the search box.
+3. View recommended restaurants displayed in an interactive card layout.
+4. Click on a restaurant card to open its Yelp page for more details.
+
+## Technical Details
+
+### Backend
+- **Framework**: FastAPI
+- **Database**: MySQL with SQLAlchemy ORM
+- **Natural Language Processing**: spaCy for keyword extraction
+- **Dependencies**:
+  - FastAPI
+  - SQLAlchemy
+  - PyMySQL
+  - Passlib (for authentication)
+
+### Frontend
+- **Framework**: React
+- **Styling**: CSS modules
+- **APIs Used**:
+  - Custom FastAPI endpoints
+  - Yelp API (optional, for additional details)
+  - OpenAI API
 
 ## Libraries Used
 
@@ -141,3 +147,11 @@ The BistroMoods backend utilizes several key libraries:
 - **passlib[bcrypt]**: Provides password hashing for secure user authentication.
 
 These libraries ensure the backend efficiently manages data while enabling users to access and interact with restaurant recommendations seamlessly.
+
+
+
+
+## License
+This project is licensed under the MIT License. See `LICENSE` for details.
+
+---
