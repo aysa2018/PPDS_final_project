@@ -72,8 +72,17 @@ After setting up the database, follow these steps to install and run the FastAPI
   ```bash
   pip3 install -r requirements.txt
   ```
+  3. Install dependecy
+  
+  ```bash
+  python -m spacy download en_core_web_sm
+  ```
+  ```bash
+  python3 -m spacy download en_core_web_sm
+  ```
+  
 
-  3. Run the backend server:
+  4. Run the backend server:
   ```bash
   uvicorn main:app --reload
   ```
@@ -88,6 +97,17 @@ After setting up the database, follow these steps to install and run the FastAPI
   ```bash
     npm install
   ```
+    ```
+   npm install axios
+   ```
+
+- Configure Environment Variables
+    -  Create a .env file in the root directory
+    - add the following enviornment variable:
+      ```
+      REACT_APP_API_BASE_URL=http://localhost:8000  # Adjust if your backend server runs on a different URL
+      ```
+      
 - Start the frontend server:
   ```bash
     npm start

@@ -8,4 +8,3 @@ pydantic
 fuzzywuzzy
 python-Levenshtein # fuzzywuzzy requires this for improved performance
 spacy
-axios
