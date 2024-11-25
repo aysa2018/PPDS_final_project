@@ -116,6 +116,7 @@ class RestaurantModel(Base):
     PriceRange = Column(String(10), nullable=True)  # Example: $, $$, $$$
     Rating = Column(Float, nullable=True)
     Ambiance = Column(String(100), nullable=True)
+    YelpURL = Column(String(255), nullable=True) 
     Latitude = Column(DECIMAL(9, 6), nullable=True)  # Map to database column
     Longitude = Column(DECIMAL(9, 6), nullable=True)
     #Relationdhip with mood table
@@ -141,7 +142,7 @@ class Restaurant(BaseModel):
     PriceRange: Optional[str] = None
     Rating: Optional[float] = None
     Ambiance: Optional[str] = None
-
+    YelpURL: Optional[str] = None
     class Config:
         from_attributes = True
 
