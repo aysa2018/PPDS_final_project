@@ -1,6 +1,10 @@
 import requests
 import sqlalchemy as db
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Yelp API setup
 API_KEY = os.getenv("YELP_API_KEY") 
@@ -27,7 +31,7 @@ for offset in range(0, total_entries, limit_per_request):
         "location": "New York, NY",
         "categories": "restaurants",
         "limit": limit_per_request,
-        "offset": offset  # Increment offset for pagination
+        "offset": offset  # Increment offset for pagination according to the Yelp documentation
     }
 
     # Fetch data from Yelp API
