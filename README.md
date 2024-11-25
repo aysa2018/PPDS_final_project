@@ -44,9 +44,6 @@ By implementing this architecture, the database will facilitate seamless interac
 ## Link to ER Diagram 
 https://lucid.app/lucidchart/65c785fc-db1b-4660-861f-f5b31761855a/edit?viewport_loc=-1978%2C-1597%2C2327%2C1383%2C0_0&invitationId=inv_7a023b2d-4867-4d8b-9e50-30a211190691
 
-## API Endpoints
-
-We used **FastAPI** and **MySQL** to create an API for managing restaurant recommendations based on user moods. This API allows you to create, view, update, and delete **users**, **restaurants**, **reviews**, and **mood-related** data.
 
 ## Setting Up & Running Instructions
 
@@ -76,12 +73,12 @@ After setting up the database, follow these steps to install and run the FastAPI
   ```
 
   - Activate the virtual enviornment
-  # For Linux/macOS
+  For Linux/macOS
   ```
   .venv\Scripts\activate
   ```
 
-  # For Windows
+  For Windows
   ```
   venv\Scripts\activate
   ```
@@ -119,81 +116,6 @@ After setting up the database, follow these steps to install and run the FastAPI
   
   Open your browser and navigate to http://localhost:3000
 
-
-- The API docs for testing are available at:
-  [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) 
-
-### 5. Using Postman to Interact with the API
-You can use our API in your Postman. Here are examples of a few endpoints:
-
-**1. Get All Users**
-- GET `/users/`
-
-**2. Create a New User**
-- POST `/users/`
-  - Example Request Body:
-  ```json
-  {
-    "Username": "alice",
-    "Email": "alice@example.com",
-    "Password": "password123",
-    "Preferences": {
-      "Cuisine": "Italian"
-    }
-  }
-  ```
-
-**3. Create a New Review**
-- POST `/reviews/`
-  - Example Request Body:
-  ```json
-  {
-    "RestaurantID": 1,
-    "UserID": 1,
-    "Rating": 4.5,
-    "Comment": "Amazing food!"
-  }
-  ```
-
-## API endpoints used with frontend examples
-1. User Sign-Up
-- Endpoint: POST /users/
-- Description: Creates a new user account.
-- Request Body:
- ```json
-{
-  "Username": "string",
-  "Email": "string",
-  "Password": "string",
-  "Preferences": {"key": "value"}  
-}
- ```
-- Response:
-  - 200 OK: Returns the created user details.
-  - 400 Bad Request: Username is already registered.
-    
-2. User Login
-- Endpoint: POST /login/
-- Description: Authenticates a user with email and password.
-- Request Body:
-```json
-{
-  "Email": "string",
-  "Password": "string"
-}
-```
-- Response:
-  - 200 OK: { "message": "Login successful" }
-  - 400 Bad Request: Invalid email or password.
-    
-3. Keyword Search
-- Endpoint: GET /restaurants/search/?keyword={keyword}
-- Description: Searches for restaurants based on a keyword match in CuisineType or MoodName.
-- Query Parameter:
-  - keyword: The search keyword.
-- Response:
-  - 200 OK: Returns a list of matching restaurants.
-  - 404 Not Found: No restaurants match the search criteria.
 
 ## Libraries Used
 
