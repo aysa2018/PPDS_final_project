@@ -123,7 +123,6 @@ Once both repositories are cloned, for further use, just run the backend server 
 - **Dependencies**:
   - FastAPI
   - SQLAlchemy
-  - PyMySQL
   - Passlib (for authentication)
 
 ### Frontend
@@ -152,6 +151,6 @@ These libraries ensure the backend efficiently manages data while enabling users
 
 
 ## License
-This project is licensed under the MIT License. See `LICENSE` for details.
+This project is licensed under the MIT License. 
 
 ---
