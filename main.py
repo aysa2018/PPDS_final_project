@@ -138,7 +138,7 @@ class Restaurant(BaseModel):
     PriceRange: Optional[str] = None
     Rating: Optional[float] = None
     Ambiance: Optional[str] = None
-
+    YelpURL: Optional[str] = None
     class Config:
         from_attributes = True
 
