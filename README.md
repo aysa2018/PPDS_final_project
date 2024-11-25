@@ -54,40 +54,11 @@ We used **FastAPI** and **MySQL** to create an API for managing restaurant recom
 
 - Clone this repository or download the source code:
   ```bash
-  git clone https://github.com/aysa2018/PPDS_final_project.git
-  cd PPDS_final_project
+  git clone https://github.com/aysa2018/bistromoods.git
+  cd bistromoods
   ```
-### 2. Install MySQL
 
-Ensure you have MySQL Server and MySQL Workbench installed. MySQL Workbench is optional but recommended for easier database management.
-
-### 3. Create the Database and Tables 
-
-  1. Open MySQL Workbench (or your preferred MySQL interface).
-     
-  3. Create a new database:
-       - Run the following SQL command to create an empty database:
-         ```bash
-         CREATE DATABASE bistromoods;
-         ```
-         
-  3. Import the SQL files:
-     
-      - Open the bistromoods.sql file from the cloned repository and run it in MySQL Workbench.
-        This file creates the necessary tables for the application.
-        
-      - Then, open the insertdata.sql file and run it to populate the tables with sample data.
-        
-  4. Configure the Database Connection
-      1. In the project root directory, create a .env file to securely store your database connection   string.
-
-      2. In the .env file, add the following line:
-          ```
-          DATABASE_URL='mysql+pymysql://username:password@host:port/database_name'
-          ```
-Replace `username`, `password`, `host`, `port`, and `database_name` with your actual MySQL database credentials.
-
-### 4. FastAPI Server Setup
+### 2. FastAPI Server Setup
 
 After setting up the database, follow these steps to install and run the FastAPI server.
 
@@ -97,6 +68,11 @@ After setting up the database, follow these steps to install and run the FastAPI
    
   ```bash
   python -m venv .venv
+  ```
+  or 
+
+  ```bash
+  python3 -m venv .venv
   ```
 
   - Activate the virtual enviornment
