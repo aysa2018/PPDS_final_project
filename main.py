@@ -12,6 +12,7 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fuzzywuzzy import fuzz
+import spacy
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -325,36 +326,73 @@ def delete_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
     return {"message": "Restaurant deleted successfully"}
 
 
+nlp = spacy.load('en_core_web_sm')
+# Keyword extraction function
+def extract_keywords(user_prompt: str) -> List[str]:
+    doc = nlp(user_prompt)
+    # Extract relevant keywords (nouns, adjectives, and proper nouns)
+    keywords = [token.lemma_.lower() for token in doc if token.pos_ in ('NOUN', 'ADJ', 'PROPN')]
+    print(f"Extracted Keywords: {keywords}")  # Debugging statement
+    return keywords
+
 @app.get("/restaurants/search/", response_model=List[Restaurant])
 def search_restaurants(
-    keyword: str,
+    user_prompt: str,  # Only user input is used now
     rating: Optional[float] = Query(None, description="Minimum rating for the restaurant"),
-    price_range: Optional[str] = Query(None, description="Price range like $, $$, $$$"),
+    price_range: Optional[str] = Query(None, description="Price range like 'Low', 'Medium', 'High'"),
+    dietary_restriction: Optional[str] = Query(None, description="Dietary restriction like 'Vegetarian', 'Vegan', 'Gluten-Free'"),
+    special_feature: Optional[str] = Query(None, description="Special feature like 'Family Friendly', 'Pet Friendly', 'Outdoor Seating'"),
     db: Session = Depends(get_db)
 ):
-    # Start with a base query that joins moods for keyword matching
+    # Extract keywords from the user prompt using NLP
+    keywords = extract_keywords(user_prompt)
+ # Debugging: Print extracted keywords
+    print(f"Extracted Keywords: {keywords}")
+    # Base query
     query = db.query(RestaurantModel).options(joinedload(RestaurantModel.moods))
-    
-    # Apply filters based on the additional parameters
+
+    # Map user-friendly price range to database values
+    price_map = {
+        "Low": ["$", "$$"],
+        "Medium": ["$$$"],
+        "High": ["$$$$"]
+    }
+
+    # Apply explicit filters
     if rating is not None:
         query = query.filter(RestaurantModel.Rating >= rating)
-    if price_range:
-        query = query.filter(RestaurantModel.PriceRange == price_range)
-    
-    # Fetch all filtered restaurants to apply keyword matching on CuisineType and MoodName
+    if price_range in price_map:
+        query = query.filter(RestaurantModel.PriceRange.in_(price_map[price_range]))
+
+    # Fetch all filtered restaurants
     all_restaurants = query.all()
-    # Filter based on the exact match for CuisineType and fuzzy match for MoodName
-    matching_restaurants = [
-        restaurant for restaurant in all_restaurants
-        if keyword.lower() == restaurant.CuisineType.lower()  # Exact match for CuisineType
-        or any(fuzz.partial_ratio(keyword.lower(), mood.MoodName.lower()) > 90 for mood in restaurant.moods)  # Fuzzy match for moods
-    ]
-   
+
+    # Filter restaurants based on keywords
+    matching_restaurants = []
+    for restaurant in all_restaurants:
+        # Check if all keywords match Name, CuisineType, or MoodName
+        if all(
+            keyword in restaurant.Name.lower() or
+            keyword in (restaurant.CuisineType or "").lower() or
+            any(keyword in (mood.MoodName or "").lower() for mood in restaurant.moods)
+            for keyword in keywords
+        ):
+            # Additional filters for dietary restrictions and special features
+            dietary_match = (
+                not dietary_restriction or (restaurant.CuisineType and dietary_restriction.lower() in restaurant.CuisineType.lower())
+            )
+            special_feature_match = (
+                not special_feature or any(special_feature.lower() == mood.MoodName.lower() for mood in restaurant.moods)
+            )
+            
+            if dietary_match and special_feature_match:
+                matching_restaurants.append(restaurant)
+
+    # Handle no matches
     if not matching_restaurants:
         raise HTTPException(status_code=404, detail="No restaurants match the search criteria")
-    
-    return matching_restaurants
 
+    return matching_restaurants
 
 # POST endpoint to create a new search query
 @app.post("/searchqueries/", response_model=SearchQuery)
