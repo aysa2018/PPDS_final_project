@@ -19,12 +19,6 @@ BistroMoods is a web application that helps users find restaurants based on thei
 
 
 
-
-## Link to ER Diagram 
-https://lucid.app/lucidchart/65c785fc-db1b-4660-861f-f5b31761855a/edit?viewport_loc=-1978%2C-1597%2C2327%2C1383%2C0_0&invitationId=inv_7a023b2d-4867-4d8b-9e50-30a211190691
-
-
-
 ## Installation
 
 ### 1. Clone the Repository
@@ -168,6 +162,10 @@ The BistroMoods backend utilizes several key libraries:
 These libraries ensure the backend efficiently manages data while enabling users to access and interact with restaurant recommendations seamlessly.
 
 
+
+
+## Link to ER Diagram 
+https://lucid.app/lucidchart/65c785fc-db1b-4660-861f-f5b31761855a/edit?viewport_loc=-1978%2C-1597%2C2327%2C1383%2C0_0&invitationId=inv_7a023b2d-4867-4d8b-9e50-30a211190691
 
 
 ## License
