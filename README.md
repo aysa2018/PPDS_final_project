@@ -90,7 +90,7 @@ After setting up the database, follow these steps to install and run the FastAPI
   or 
 
   ```bash
-  pip install -r requirements.txt
+  pip3 install -r requirements.txt
   ```
 
   3. Run the backend server:
@@ -116,6 +116,17 @@ After setting up the database, follow these steps to install and run the FastAPI
   
   Open your browser and navigate to http://localhost:3000
 
+Once both repositories are cloned, for further use, just run the backend server and frontend server at the same time with
+  ```bash
+  uvicorn main:app --reload
+  ```
+  for backend 
+  and 
+
+  ```bash
+    npm start
+  ```
+  for frontend
 
 ## Libraries Used
 
