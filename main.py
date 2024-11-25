@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fuzzywuzzy import fuzz
 import spacy
+from neighborhoods import NEIGHBORHOODS
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -115,6 +116,8 @@ class RestaurantModel(Base):
     PriceRange = Column(String(10), nullable=True)  # Example: $, $$, $$$
     Rating = Column(Float, nullable=True)
     Ambiance = Column(String(100), nullable=True)
+    Latitude = Column(DECIMAL(9, 6), nullable=True)  # Map to database column
+    Longitude = Column(DECIMAL(9, 6), nullable=True)
     #Relationdhip with mood table
     moods = relationship("RestaurantMood", back_populates="restaurant")
 
@@ -334,21 +337,41 @@ def extract_keywords(user_prompt: str) -> List[str]:
     keywords = [token.lemma_.lower() for token in doc if token.pos_ in ('NOUN', 'ADJ', 'PROPN')]
     print(f"Extracted Keywords: {keywords}")  # Debugging statement
     return keywords
+def find_neighborhood(latitude, longitude):
+    """
+    Determines the neighborhood for a given latitude and longitude.
+
+    """
+    from neighborhoods import NEIGHBORHOODS  # Import NEIGHBORHOODS dictionary
+
+    for neighborhood, bounds in NEIGHBORHOODS.items():
+        # Check if the coordinates fall within the bounds of the neighborhood
+        if (bounds["lat_min"] <= latitude <= bounds["lat_max"] and
+                bounds["lon_min"] <= longitude <= bounds["lon_max"]):
+            return neighborhood.lower()  # Normalize to lowercase for consistent comparison
+    return None  # Return None if no matching neighborhood is found
+
 
 @app.get("/restaurants/search/", response_model=List[Restaurant])
 def search_restaurants(
-    user_prompt: str,  # Only user input is used now
-    rating: Optional[float] = Query(None, description="Minimum rating for the restaurant"),
-    price_range: Optional[str] = Query(None, description="Price range like 'Low', 'Medium', 'High'"),
-    dietary_restriction: Optional[str] = Query(None, description="Dietary restriction like 'Vegetarian', 'Vegan', 'Gluten-Free'"),
-    special_feature: Optional[str] = Query(None, description="Special feature like 'Family Friendly', 'Pet Friendly', 'Outdoor Seating'"),
-    db: Session = Depends(get_db)
+    user_prompt: str,  # User input for search
+    neighborhoods: Optional[List[str]] = Query(None, description="List of neighborhoods to filter"),  # Neighborhoods filter
+    rating: Optional[float] = Query(None, description="Minimum rating for the restaurant"),  # Rating filter
+    price_range: Optional[str] = Query(None, description="Price range like 'Low', 'Medium', 'High'"),  # Price range filter
+    dietary_restriction: Optional[str] = Query(None, description="Dietary restriction like 'Vegetarian', 'Vegan', 'Gluten-Free'"),  # Dietary restriction filter
+    special_feature: Optional[str] = Query(None, description="Special feature like 'Family Friendly', 'Pet Friendly', 'Outdoor Seating'"),  # Special feature filter
+    db: Session = Depends(get_db)  # Dependency injection for database session
 ):
-    # Extract keywords from the user prompt using NLP
+    """
+    Endpoint to search for restaurants based on user input and filters.
+    """
+    from neighborhoods import NEIGHBORHOODS  # Import NEIGHBORHOODS dictionary
+
+    # Extract keywords from the user input
     keywords = extract_keywords(user_prompt)
- # Debugging: Print extracted keywords
-    print(f"Extracted Keywords: {keywords}")
-    # Base query
+    print(f"Extracted Keywords: {keywords}")  # Debugging
+
+    # Base query for restaurants with joined moods for keyword matching
     query = db.query(RestaurantModel).options(joinedload(RestaurantModel.moods))
 
     # Map user-friendly price range to database values
@@ -358,33 +381,62 @@ def search_restaurants(
         "High": ["$$$$"]
     }
 
-    # Apply explicit filters
+    # Apply rating filter if provided
     if rating is not None:
         query = query.filter(RestaurantModel.Rating >= rating)
+
+    # Apply price range filter if provided
     if price_range in price_map:
         query = query.filter(RestaurantModel.PriceRange.in_(price_map[price_range]))
 
-    # Fetch all filtered restaurants
+    # Fetch all restaurants matching the base filters
     all_restaurants = query.all()
 
-    # Filter restaurants based on keywords
+    # Normalize and process the neighborhoods list
+    if neighborhoods:
+        # Process each neighborhood separately
+        processed_neighborhoods = []
+        for neighborhood in neighborhoods:
+            # If a single neighborhood contains commas, split it
+            if isinstance(neighborhood, str) and "," in neighborhood:
+                processed_neighborhoods.extend([n.strip() for n in neighborhood.split(",")])
+            else:
+                processed_neighborhoods.append(neighborhood)
+        
+        normalized_neighborhoods = {n.lower().strip() for n in processed_neighborhoods}
+        print(f"Neighborhoods for Filtering: {normalized_neighborhoods}")  # Debugging
+
+        # Filter restaurants by neighborhoods
+        filtered_restaurants = []
+        for restaurant in all_restaurants:
+            # Get the neighborhood of the restaurant
+            restaurant_neighborhood = find_neighborhood(float(restaurant.Latitude), float(restaurant.Longitude))
+            if restaurant_neighborhood and restaurant_neighborhood.lower() in normalized_neighborhoods:
+                filtered_restaurants.append(restaurant)
+        
+        all_restaurants = filtered_restaurants
+
+    # Filter restaurants based on keywords and other criteria
     matching_restaurants = []
     for restaurant in all_restaurants:
-        # Check if all keywords match Name, CuisineType, or MoodName
+        # Check if all keywords match restaurant details
         if all(
             keyword in restaurant.Name.lower() or
             keyword in (restaurant.CuisineType or "").lower() or
             any(keyword in (mood.MoodName or "").lower() for mood in restaurant.moods)
             for keyword in keywords
         ):
-            # Additional filters for dietary restrictions and special features
+            # Check dietary restriction match
             dietary_match = (
                 not dietary_restriction or (restaurant.CuisineType and dietary_restriction.lower() in restaurant.CuisineType.lower())
             )
+
+            # Check special feature match
             special_feature_match = (
                 not special_feature or any(special_feature.lower() == mood.MoodName.lower() for mood in restaurant.moods)
             )
-            
+
+            # Add restaurant to results if all criteria match
             if dietary_match and special_feature_match:
                 matching_restaurants.append(restaurant)
 
@@ -393,6 +445,8 @@ def search_restaurants(
         raise HTTPException(status_code=404, detail="No restaurants match the search criteria")
 
     return matching_restaurants
+
+
 
 # POST endpoint to create a new search query
 @app.post("/searchqueries/", response_model=SearchQuery)
