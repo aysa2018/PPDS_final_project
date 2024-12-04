@@ -143,8 +143,12 @@ class Restaurant(BaseModel):
     Rating: Optional[float] = None
     Ambiance: Optional[str] = None
     YelpURL: Optional[str] = None
+    Latitude: Optional[float] = None  # Ensure these fields are included
+    Longitude: Optional[float] = None
+
     class Config:
-        from_attributes = True
+        orm_mode = True
+
 
 # SQLAlchemy model for SearchQueries
 class SearchQueries(Base):
@@ -626,6 +630,14 @@ class Review(BaseModel):
 
     class Config:
         orm_mode = True
+
+@app.get("/restaurants/", response_model=List[Restaurant])
+def get_restaurants(db: Session = Depends(get_db)):
+    restaurants = db.query(RestaurantModel).all()
+    for restaurant in restaurants:
+        print(f"Name: {restaurant.Name}, Latitude: {restaurant.Latitude}, Longitude: {restaurant.Longitude}")
+    return restaurants
+
 # POST endpoint to create a new review
 @app.post("/reviews/", response_model=Review)
 def create_review(review: ReviewCreate, db: Session = Depends(get_db)):
