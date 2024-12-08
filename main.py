@@ -27,9 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def root ():
-        return {"status": "backend is running!"}
+#@app.get("/")
+#def root ():
+        #return {"status": "backend is running!"}
     
 @app.options("/login/")
 async def login_options():
