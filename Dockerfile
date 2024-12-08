@@ -14,7 +14,7 @@ RUN python -m spacy download en_core_web_sm
 COPY . .
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
 # Start FastAPI server (this should be exactly what you do when working locally)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
